@@ -42,6 +42,28 @@ public class PController implements UltrasonicController {
 		}
 		
 		// TODO: process a movement based on the us distance passed in (P style)	
+	int distError=distance-bandCenter;	// Compute error
+		
+		if (Math.abs(distError) <= bandwidth) {	// Within limits, same speed
+			leftMotor.setSpeed(motorStraight);	// Start moving forward
+			rightMotor.setSpeed(motorStraight);
+			leftMotor.forward();
+			rightMotor.forward();				
+			}
+			
+		else if (distError < 0) {			// Too close to the wall
+			leftMotor.setSpeed(motorStraight);
+			rightMotor.setSpeed(motorStraight);
+			leftMotor.forward();
+			rightMotor.forward();				
+			}
+			
+		else if (distError > 0) {
+			leftMotor.setSpeed(motorStraight);
+			rightMotor.setSpeed(motorStraight);
+			leftMotor.forward();
+			rightMotor.forward();				
+			}
 	}
 
 	
