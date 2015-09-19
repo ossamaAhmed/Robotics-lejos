@@ -1,0 +1,89 @@
+package wallFollower;
+
+import lejos.hardware.motor.*;
+
+public class BangBangController implements UltrasonicController {
+	private final int bandCenter, bandwidth;
+	private final int motorLow, motorHigh;
+	private int distance;
+	private int backupTries = 0; // Keep track of how many times we tried to
+									// backup
+	private EV3LargeRegulatedMotor leftMotor, rightMotor;
+
+	public BangBangController(EV3LargeRegulatedMotor leftMotor,
+			EV3LargeRegulatedMotor rightMotor, int bandCenter, int bandwidth,
+			int motorLow, int motorHigh) {
+		// Default Constructor
+		this.bandCenter = bandCenter;
+		this.bandwidth = bandwidth;
+		this.motorLow = motorLow;
+		this.motorHigh = motorHigh;
+		this.leftMotor = leftMotor;
+		this.rightMotor = rightMotor;
+		leftMotor.setSpeed(motorHigh); // Start robot moving forward
+		rightMotor.setSpeed(motorHigh);
+		leftMotor.forward();
+		rightMotor.forward();
+	}
+
+	@Override
+	public void processUSData(int distance) {
+		this.distance = distance;
+		// TODO: process a movement based on the us distance passed in
+		// (BANG-BANG style)
+		int distError = distance - bandCenter; // Compute error
+
+		if (Math.abs(distError) <= bandwidth) { // Within limits, same speed
+			leftMotor.setSpeed(motorHigh); // Start moving forward
+			rightMotor.setSpeed(motorHigh);
+			leftMotor.forward();
+			rightMotor.forward();
+		}
+		
+		// Way too close to the wall, back up
+		else if (distance <= 8 && backupTries <= 200) {
+			leftMotor.setSpeed(motorHigh + 200);
+			rightMotor.setSpeed(motorHigh + 200);
+			leftMotor.backward();
+			rightMotor.backward();
+			backupTries+=20; // Increase try counter to avoid getting stuck in a loop
+			return;
+
+		}
+
+		else if (distError < 0) {
+			// Too close to the wall
+
+			leftMotor.setSpeed(motorHigh);
+			rightMotor.setSpeed(motorLow);
+			leftMotor.forward();
+			rightMotor.forward();
+
+		}
+
+		else if (distError > 0) {
+
+			// Wall is just out of reach, try to move in a curve closer
+			if (distance > bandCenter && distance < 50) {
+				leftMotor.setSpeed(motorHigh);
+				rightMotor.setSpeed(motorHigh + 75);
+				leftMotor.forward();
+				rightMotor.forward();
+
+			}
+
+			else {
+			leftMotor.setSpeed(motorLow);
+			rightMotor.setSpeed(motorHigh);
+			leftMotor.forward();
+			rightMotor.forward();
+			}
+		}
+		if (backupTries >0) backupTries--; // Decrease counter if we move without triggering a backup
+	}
+
+	@Override
+	public int readUSDistance() {
+		return this.distance;
+	}
+}
