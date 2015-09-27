@@ -3,23 +3,26 @@
  */
 package ev3Odometer;
 
+import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.hardware.sensor.SensorMode;
 import lejos.robotics.Color;
 
 public class OdometryCorrection extends Thread {
 	private static final long CORRECTION_PERIOD = 10;
 	private Odometer odometer;
 	private static EV3ColorSensor sensor = new EV3ColorSensor(LocalEV3.get().getPort("S2"));
+	private SensorMode mode;
 	private Object lock;
 
 	// constructor
 	public OdometryCorrection(Odometer odometer) {
 		this.odometer = odometer;
 		// Mode to sense colors
-		sensor.getColorIDMode();
+		mode= sensor.getRedMode();
 		// Turn on white LED
-		sensor.setFloodlight(Color.WHITE);
+		sensor.setFloodlight(Color.RED);
 	}
 
 	// run method (required for Thread)
@@ -27,13 +30,16 @@ public class OdometryCorrection extends Thread {
 		long correctionStart, correctionEnd;
 
 		while (true) {
-			synchronized (lock) {
 				correctionStart = System.currentTimeMillis();
+				float[] sample= new float[mode.sampleSize()];
+				mode.fetchSample(sample, 0);
+				float intensity= sample[0]*100;
 				// Check the sensor for a black line
-				if (sensor.getColorID() == 1) {
+				if (intensity<25) {
 					// Rounds the position to the nearest multiple of 15 and nearest Pi/2 for angle
-					double newX = Math.round(odometer.getX()/15)*15;
-					double newY = Math.round(odometer.getY()/15)*15;
+					Sound.beep();
+					double newX = Math.round(odometer.getX()/11)*11;
+					double newY = Math.round(odometer.getY()/11)*11;
 					double newTheta = Math.round(odometer.getTheta()/(Math.PI / 2))* (Math.PI)/2 ;
 					// Set these new values in the odometer
 					double[] newPos = {newX,newY,newTheta};
@@ -54,7 +60,7 @@ public class OdometryCorrection extends Thread {
 						// interrupted by another thread
 					}
 				}
-			}
+			
 		}
 	}
 }

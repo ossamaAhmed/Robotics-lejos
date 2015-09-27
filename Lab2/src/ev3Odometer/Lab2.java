@@ -19,7 +19,7 @@ public class Lab2 {
 
 	// Constants
 	public static final double WHEEL_RADIUS = 2.1;
-	public static final double TRACK = 15.8;
+	public static final double TRACK = 16.2;
 
 	public static void main(String[] args) {
 		int buttonChoice;
@@ -27,7 +27,7 @@ public class Lab2 {
 		// some objects that need to be instantiated
 		
 		final TextLCD t = LocalEV3.get().getTextLCD();
-		Odometer odometer = new Odometer();
+		Odometer odometer = new Odometer(leftMotor, rightMotor,TRACK,WHEEL_RADIUS);
 		OdometryDisplay odometryDisplay = new OdometryDisplay(odometer,t);
 		OdometryCorrection odometryCorrection = new OdometryCorrection(odometer);
 
@@ -55,6 +55,8 @@ public class Lab2 {
 			
 			odometer.start();
 			odometryDisplay.start();
+			 odometryCorrection.start();
+
 			
 		} else {
 			// start the odometer, the odometry display and (possibly) the
@@ -62,7 +64,7 @@ public class Lab2 {
 			
 			odometer.start();
 			odometryDisplay.start();
-			// odometryCorrection.start();
+			 odometryCorrection.start();
 
 			// spawn a new Thread to avoid SquareDriver.drive() from blocking
 			(new Thread() {

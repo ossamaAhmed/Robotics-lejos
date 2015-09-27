@@ -13,10 +13,10 @@ public class Odometer extends Thread {
 	public static int lastTachoR; // Tacho R at last sample
 	public static int nowTachoL; // Current tacho L
 	public static int nowTachoR; // Current tacho R
-	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
-	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
-	public static final double WB=16.0; // Wheelbase (cm)
-	public static final double WR=2.7; // Wheel radius (cm) 
+	private EV3LargeRegulatedMotor leftMotor ;
+	private EV3LargeRegulatedMotor rightMotor ;
+	public double WB; // Wheelbase (cm)
+	public double WR; // Wheel radius (cm) 
 	
 	// robot position
 	private double X, Y, Theta;
@@ -28,13 +28,17 @@ public class Odometer extends Thread {
 	private Object lock;
 
 	// default constructor
-	public Odometer() {
+	public Odometer(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, double WB, double WR) {
 		X = 0.0;
 		Y = 0.0;
 		Theta = 0.0;
 		lock = new Object();
-		leftMotor.resetTachoCount();
-		rightMotor.resetTachoCount();
+		this.leftMotor=leftMotor;
+		this.rightMotor=rightMotor;
+		this.WB = WB;
+		this.WR =WR;
+		this.leftMotor.resetTachoCount();
+		this.rightMotor.resetTachoCount();
 	}
 
 	// run method (required for Thread)
