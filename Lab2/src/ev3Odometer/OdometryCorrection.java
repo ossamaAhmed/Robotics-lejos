@@ -5,6 +5,7 @@ package ev3Odometer;
 
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.robotics.Color;
 
 public class OdometryCorrection extends Thread {
 	private static final long CORRECTION_PERIOD = 10;
@@ -15,6 +16,10 @@ public class OdometryCorrection extends Thread {
 	// constructor
 	public OdometryCorrection(Odometer odometer) {
 		this.odometer = odometer;
+		// Mode to sense colors
+		sensor.getColorIDMode();
+		// Turn on white LED
+		sensor.setFloodlight(Color.WHITE);
 	}
 
 	// run method (required for Thread)
