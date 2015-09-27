@@ -15,8 +15,6 @@ public class Odometer extends Thread {
 	public static int nowTachoR; // Current tacho R
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
-	public static final int SINTERVAL=50; // Period of sampling f (mSec)
-	public static final int SLEEPINT=500; // Period of display update (mSec)
 	public static final double WB=16.0; // Wheelbase (cm)
 	public static final double WR=2.7; // Wheel radius (cm) 
 	
@@ -35,6 +33,8 @@ public class Odometer extends Thread {
 		Y = 0.0;
 		Theta = 0.0;
 		lock = new Object();
+		leftMotor.resetTachoCount();
+		rightMotor.resetTachoCount();
 	}
 
 	// run method (required for Thread)
@@ -42,14 +42,14 @@ public class Odometer extends Thread {
 		long updateStart, updateEnd;
 
 		while (true) {
-			updateStart = System.currentTimeMillis();
 			synchronized (lock) {
+			updateStart = System.currentTimeMillis();
 			// put (some of) your odometer code here
 			double distL, distR, deltaD, deltaT, dX, dY; 
 			nowTachoL = leftMotor.getTachoCount();      // get tacho counts 
 			nowTachoR = rightMotor.getTachoCount(); 
-			distL = 3.14159*WR*(nowTachoL-lastTachoL)/180;     // compute wheel 
-			distR = 3.14159*WR*(nowTachoR-lastTachoR)/180;   // displacements 
+			distL = Math.PI*WR*(nowTachoL-lastTachoL)/180;     // compute wheel 
+			distR = Math.PI*WR*(nowTachoR-lastTachoR)/180;   // displacements 
 			lastTachoL=nowTachoL;           // save tacho counts for next iteration 
 			lastTachoR=nowTachoR; 
 			deltaD = 0.5*(distL+distR);       // compute vehicle displacement 
@@ -60,7 +60,7 @@ public class Odometer extends Thread {
 			X = X + dX;            // update estimates of X and Y position 
 			Y = Y + dY;
 			//
-			}
+			
 
 			// this ensures that the odometer only runs once every period
 			updateEnd = System.currentTimeMillis();
@@ -73,6 +73,7 @@ public class Odometer extends Thread {
 					// another thread
 				}
 			}
+		}
 		}
 	}
 
