@@ -46,6 +46,7 @@ public class Odometer extends Thread {
 		long updateStart, updateEnd;
 
 		while (true) {
+			synchronized (lock) {
 			updateStart = System.currentTimeMillis();
 			// put (some of) your odometer code here
 			double distL, distR, deltaD, deltaT, dX, dY; 
@@ -78,6 +79,7 @@ public class Odometer extends Thread {
 			}
 		}
 		}
+	}
 
 	// accessors
 	public void getPosition(double[] position, boolean[] update) {
