@@ -4,7 +4,7 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 public class PController implements UltrasonicController {
 	
 	private final int bandCenter, bandwidth;
-	private final int motorStraight = 200, FILTER_OUT = 20;
+	private final int motorStraight = 250, FILTER_OUT = 20;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private int distance;
 	private int filterControl;
@@ -32,6 +32,7 @@ public class PController implements UltrasonicController {
 		if (distance == 255 && filterControl < FILTER_OUT) {
 			// bad value, do not set the distance var, however do increment the filter value
 			filterControl ++;
+			
 		} else if (distance == 255){
 			// true 255, therefore set distance to 255
 			this.distance = distance;
@@ -42,29 +43,19 @@ public class PController implements UltrasonicController {
 		}
 		
 		// TODO: process a movement based on the us distance passed in (P style)	
-	int distError=distance-bandCenter;	// Compute error
+	int distError=this.distance-bandCenter;	// Compute error
+	if (distError >= 20) distError=20;
+	else if (distError <= -20) distError=-20;
+	
+
+	
+	leftMotor.setSpeed(motorStraight);
+	rightMotor.setSpeed(motorStraight+10*distError);
+	leftMotor.forward();
+	rightMotor.forward();
+
 		
-		if (Math.abs(distError) <= bandwidth) {	// Within limits, same speed
-			leftMotor.setSpeed(motorStraight);	// Start moving forward
-			rightMotor.setSpeed(motorStraight);
-			leftMotor.forward();
-			rightMotor.forward();				
 			}
-			
-		else if (distError < 0) {			// Too close to the wall
-			leftMotor.setSpeed(motorStraight);
-			rightMotor.setSpeed(motorStraight);
-			leftMotor.forward();
-			rightMotor.forward();				
-			}
-			
-		else if (distError > 0) {
-			leftMotor.setSpeed(motorStraight);
-			rightMotor.setSpeed(motorStraight);
-			leftMotor.forward();
-			rightMotor.forward();				
-			}
-	}
 
 	
 	@Override

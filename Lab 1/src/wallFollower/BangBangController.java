@@ -3,9 +3,10 @@ import lejos.hardware.motor.*;
 
 public class BangBangController implements UltrasonicController{
 	private final int bandCenter, bandwidth;
-	private final int motorLow, motorHigh;
+	private final int motorLow, motorHigh, FILTER_OUT = 20;
 	private int distance;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
+	private int filterControl;
 	
 	public BangBangController(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor,
 							  int bandCenter, int bandwidth, int motorLow, int motorHigh) {
@@ -20,13 +21,31 @@ public class BangBangController implements UltrasonicController{
 		rightMotor.setSpeed(motorHigh);
 		leftMotor.forward();
 		rightMotor.forward();
+		filterControl=0;
 	}
 	
 	@Override
 	public void processUSData(int distance) {
-		this.distance = distance;
-		// TODO: process a movement based on the us distance passed in (BANG-BANG style)
-		int distError=distance-bandCenter;	// Compute error
+		
+		if (distance >= 200 && filterControl < FILTER_OUT) {
+			// bad value, do not set the distance var, however do increment the filter value
+			filterControl ++;
+			return;
+		} else if (distance >= 200){
+			// true 255, therefore set distance to 255
+			this.distance = distance;
+		} 
+		else if(distance <7 ){
+			leftMotor.setSpeed(500);
+			rightMotor.setSpeed(500);
+			
+		}else {
+			// distance went below 255, therefore reset everything.
+			filterControl = 0;
+			this.distance = distance;
+		}
+				// TODO: process a movement based on the us distance passed in (BANG-BANG style)
+		int distError=this.distance-bandCenter;	// Compute error
 		
 		if (Math.abs(distError) <= bandwidth) {	// Within limits, same speed
 			leftMotor.setSpeed(motorHigh);	// Start moving forward
@@ -36,7 +55,7 @@ public class BangBangController implements UltrasonicController{
 			}
 			
 		else if (distError < 0) {			// Too close to the wall
-				leftMotor.setSpeed(motorHigh);
+				leftMotor.setSpeed(motorHigh+300);
 				rightMotor.setSpeed(motorLow);
 				leftMotor.forward();
 				rightMotor.forward();
@@ -44,8 +63,8 @@ public class BangBangController implements UltrasonicController{
 			}
 			
 		else if (distError > 0) {
-				leftMotor.setSpeed(motorLow);
-				rightMotor.setSpeed(motorHigh);
+				leftMotor.setSpeed(motorLow+110);
+				rightMotor.setSpeed(motorHigh+50);
 				leftMotor.forward();
 				rightMotor.forward();			
 			}
