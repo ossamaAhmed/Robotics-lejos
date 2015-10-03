@@ -19,7 +19,11 @@ public class Lab2 {
 
 	// Constants
 	public static final double WHEEL_RADIUS = 2.1;
+<<<<<<< HEAD
 	public static final double TRACK = 12.2;
+=======
+	public static final double TRACK = 12;
+>>>>>>> origin/master
 
 	public static void main(String[] args) {
 		int buttonChoice;
@@ -55,7 +59,11 @@ public class Lab2 {
 			
 			odometer.start();
 			odometryDisplay.start();
+<<<<<<< HEAD
 			 //odometryCorrection.start();
+=======
+			 odometryCorrection.start();
+>>>>>>> origin/master
 
 			
 		} else {
