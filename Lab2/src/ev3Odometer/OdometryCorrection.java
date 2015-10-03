@@ -36,18 +36,10 @@ public class OdometryCorrection extends Thread {
 				mode.fetchSample(sample, 0);
 				float intensity= sample[0]*100;
 				// Check the sensor for a black line
-<<<<<<< HEAD
 				if (intensity<60) {
 					// Rounds the position to the nearest multiple of 15 and nearest Pi/2 for angle
 					double newX=odometer.getX();
 					double newY=odometer.getY();
-=======
-				if (intensity<25) {
-					// Rounds the position to the nearest multiple of 15 and nearest Pi/2 for angle
-					Sound.beep();
-					double newX = Math.round(odometer.getX()/15)*15;
-					double newY = Math.round(odometer.getY()/15)*15;
->>>>>>> origin/master
 					double newTheta = Math.round(odometer.getTheta()/(Math.PI / 2))* (Math.PI)/2 ;
 					
 					// Reduce Theta to be between 0 and 2 Pi
@@ -83,7 +75,7 @@ public class OdometryCorrection extends Thread {
 					// Set these new values in the odometer
 					double[] newPos = {newX,newY,newTheta};
 					boolean[] newUpdate = {true,true,true};
-			       odometer.setPosition(newPos,newUpdate);
+					odometer.setPosition(newPos,newUpdate);
 				}
 
 				// this ensure the odometry correction occurs only once every

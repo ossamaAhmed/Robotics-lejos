@@ -63,6 +63,7 @@ public class Odometer extends Thread {
 			X = X + dX;            // update estimates of X and Y position 
 			Y = Y + dY;
 			this.Theta = wrapTheta(this.Theta);
+			Theta = Theta / Math.PI * 180; // Convert to degrees
 			//
 			
 

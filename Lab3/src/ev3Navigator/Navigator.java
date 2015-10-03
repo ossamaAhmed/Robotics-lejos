@@ -13,6 +13,8 @@ public class Navigator extends Thread {
 	private double track;
 	private double wr;
 	private boolean isNavigating;
+	private int FORWARD_SPEED = 200;
+	private int ROTATE_SPEED = 50;
 
 	public Navigator(Odometer odometer, UltrasonicPoller usPoller,
 			EV3LargeRegulatedMotor leftMotor,
@@ -23,6 +25,12 @@ public class Navigator extends Thread {
 		this.rightMotor = rightMotor;
 		this.track = track;
 		this.wr = wr;
+		// Reset Motors
+		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {
+				leftMotor, rightMotor }) {
+			motor.stop();
+			motor.setAcceleration(3000);
+		}
 	}
 
 	public void run() {
@@ -39,7 +47,22 @@ public class Navigator extends Thread {
 	}
 
 	public void turnTo(double theta) {
-		// TODO
+		double d = theta - odometer.getTheta();
+
+		// Find minimum angle
+		if (d >= -180 || d <= 180) {
+			// Leave d as is
+		} else if (d < -180) {
+			d = d + 360;
+		} else if (d > 180) {
+			d = d - 360;
+		}
+		//
+
+		leftMotor.setSpeed(ROTATE_SPEED);
+		rightMotor.setSpeed(ROTATE_SPEED);
+		leftMotor.rotate(convertAngle(wr, track, d), true);
+		rightMotor.rotate(-convertAngle(wr, track, d), false);
 	}
 
 	public boolean isNavigating() {
@@ -48,6 +71,14 @@ public class Navigator extends Thread {
 
 	public int getDistance() {
 		return this.usPoller.getDistance();
+	}
+
+	private static int convertDistance(double radius, double distance) {
+		return (int) ((180.0 * distance) / (Math.PI * radius));
+	}
+
+	private static int convertAngle(double radius, double width, double angle) {
+		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
 
 }
