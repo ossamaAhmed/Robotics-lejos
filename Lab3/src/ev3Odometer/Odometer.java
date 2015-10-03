@@ -62,6 +62,7 @@ public class Odometer extends Thread {
 			dY = deltaD * Math.cos(Theta);  // compute Y component of displacement 
 			X = X + dX;            // update estimates of X and Y position 
 			Y = Y + dY;
+			this.Theta = wrapTheta(this.Theta);
 			//
 			
 
@@ -78,7 +79,15 @@ public class Odometer extends Thread {
 			}
 		}
 		}
-
+	public double wrapTheta (double theta){
+		while (theta >= 2*Math.PI)
+		{
+			theta -= 2*Math.PI;
+		}
+		return theta;
+	}
+	
+	
 	// accessors
 	public void getPosition(double[] position, boolean[] update) {
 		// ensure that the values don't change while the odometer is running
