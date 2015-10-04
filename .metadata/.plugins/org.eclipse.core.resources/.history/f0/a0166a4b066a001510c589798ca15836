@@ -1,0 +1,174 @@
+/*
+ * Odometer.java
+ */
+
+package ev3Odometer;
+
+import lejos.hardware.ev3.LocalEV3;
+import lejos.hardware.motor.EV3LargeRegulatedMotor;
+
+public class Odometer extends Thread {
+	
+	public static int lastTachoL; // Tacho L at last sample
+	public static int lastTachoR; // Tacho R at last sample
+	public static int nowTachoL; // Current tacho L
+	public static int nowTachoR; // Current tacho R
+	private EV3LargeRegulatedMotor leftMotor ;
+	private EV3LargeRegulatedMotor rightMotor ;
+	public double WB; // Wheelbase (cm)
+	public double WR; // Wheel radius (cm) 
+	
+	// robot position
+	private double X, Y, Theta;
+
+	// odometer update period, in ms
+	private static final long ODOMETER_PERIOD = 25;
+
+	// lock object for mutual exclusion
+	private Object lock;
+
+	// default constructor
+	public Odometer(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, double WB, double WR) {
+		X = 0.0;
+		Y = 0.0;
+		Theta = 0.0;
+		lock = new Object();
+		this.leftMotor=leftMotor;
+		this.rightMotor=rightMotor;
+		this.WB = WB;
+		this.WR =WR;
+		this.leftMotor.resetTachoCount();
+		this.rightMotor.resetTachoCount();
+	}
+
+	// run method (required for Thread)
+	public void run() {
+		long updateStart, updateEnd;
+
+		while (true) {
+			updateStart = System.currentTimeMillis();
+			// put (some of) your odometer code here
+			double distL, distR, deltaD, deltaT, dX, dY; 
+			nowTachoL = leftMotor.getTachoCount();      // get tacho counts 
+			nowTachoR = rightMotor.getTachoCount(); 
+			distL = Math.PI*WR*(nowTachoL-lastTachoL)/180;     // compute wheel 
+			distR = Math.PI*WR*(nowTachoR-lastTachoR)/180;   // displacements 
+			lastTachoL=nowTachoL;           // save tacho counts for next iteration 
+			lastTachoR=nowTachoR; 
+			deltaD = 0.5*(distL+distR);       // compute vehicle displacement 
+			deltaT = (distL-distR)/WB;        // compute change in heading 
+			Theta += deltaT;            // update heading 
+			dX = deltaD * Math.sin(Theta);    // compute X component of displacement 
+			dY = deltaD * Math.cos(Theta);  // compute Y component of displacement 
+			X = X + dX;            // update estimates of X and Y position 
+			Y = Y + dY;
+
+			// this ensures that the odometer only runs once every period
+			updateEnd = System.currentTimeMillis();
+			if (updateEnd - updateStart < ODOMETER_PERIOD) {
+				try {
+					Thread.sleep(ODOMETER_PERIOD - (updateEnd - updateStart));
+				} catch (InterruptedException e) {
+					// there is nothing to be done here because it is not
+					// expected that the odometer will be interrupted by
+					// another thread
+				}
+			}
+		}
+		}
+	public double wrapTheta (double theta){
+		while (theta >= 360)
+		{
+			theta -= 360;
+		}
+		return theta;
+	}
+	
+	
+	// accessors
+	public void getPosition(double[] position, boolean[] update) {
+		// ensure that the values don't change while the odometer is running
+		synchronized (lock) {
+			if (update[0])
+				position[0] = X;
+			if (update[1])
+				position[1] = Y;
+			if (update[2])
+				position[2] = Theta;
+		}
+	}
+
+	public double getX() {
+		double result;
+
+		synchronized (lock) {
+			result = X;
+		}
+
+		return result;
+	}
+
+	public double getY() {
+		double result;
+
+		synchronized (lock) {
+			result = Y;
+		}
+
+		return result;
+	}
+
+	public double getTheta() {
+		double result;
+
+		synchronized (lock) {
+			result = Theta;
+		}
+
+		return result;
+	}
+	
+	public double getThetaDegrees(){
+		double result;
+
+		synchronized (lock) {
+			result = Math.toDegrees(this.Theta);
+		}
+		result=result%360;
+
+		return result;
+		
+	}
+
+	// mutators
+	public void setPosition(double[] position, boolean[] update) {
+		// ensure that the values don't change while the odometer is running
+		synchronized (lock) {
+			if (update[0])
+				X = position[0];
+			if (update[1])
+				Y = position[1];
+			if (update[2])
+				Theta = position[2];
+		}
+	}
+
+	public void setX(double x) {
+		synchronized (lock) {
+			this.X = x;
+		}
+	}
+
+	public void setY(double y) {
+		synchronized (lock) {
+			this.Y = y;
+		}
+	}
+	
+
+	public void setTheta(double theta) {
+		synchronized (lock) {
+			this.Theta = theta;
+		}
+	}
+}

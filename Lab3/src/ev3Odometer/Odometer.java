@@ -31,7 +31,7 @@ public class Odometer extends Thread {
 	public Odometer(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, double WB, double WR) {
 		X = 0.0;
 		Y = 0.0;
-		Theta = 0.0;
+		Theta = 0.5*Math.PI;
 		lock = new Object();
 		this.leftMotor=leftMotor;
 		this.rightMotor=rightMotor;
@@ -56,14 +56,12 @@ public class Odometer extends Thread {
 			lastTachoL=nowTachoL;           // save tacho counts for next iteration 
 			lastTachoR=nowTachoR; 
 			deltaD = 0.5*(distL+distR);       // compute vehicle displacement 
-			deltaT = (distL-distR)/WB;        // compute change in heading 
+			deltaT = (distR-distL)/WB;        // compute change in heading 
 			Theta += deltaT;            // update heading 
-			dX = deltaD * Math.sin(Theta);    // compute X component of displacement 
-			dY = deltaD * Math.cos(Theta);  // compute Y component of displacement 
+			dY = deltaD * Math.sin(Theta);    // compute Y component of displacement 
+			dX = deltaD * Math.cos(Theta);  // compute X component of displacement 
 			X = X + dX;            // update estimates of X and Y position 
 			Y = Y + dY;
-			this.Theta = wrapTheta(this.Theta);
-			Theta = Theta / Math.PI * 180; // Convert to degrees
 			//
 			
 
@@ -80,15 +78,7 @@ public class Odometer extends Thread {
 			}
 		}
 		}
-	public double wrapTheta (double theta){
-		while (theta >= 2*Math.PI)
-		{
-			theta -= 2*Math.PI;
-		}
-		return theta;
-	}
-	
-	
+
 	// accessors
 	public void getPosition(double[] position, boolean[] update) {
 		// ensure that the values don't change while the odometer is running
@@ -98,7 +88,7 @@ public class Odometer extends Thread {
 			if (update[1])
 				position[1] = Y;
 			if (update[2])
-				position[2] = Theta;
+				position[2] = this.getThetaDegrees();
 		}
 	}
 
@@ -127,6 +117,19 @@ public class Odometer extends Thread {
 
 		synchronized (lock) {
 			result = Theta;
+		}
+
+		return result;
+	}
+	public double getThetaDegrees() {
+		double result;
+
+		synchronized (lock) {
+			result = Math.toDegrees(Theta);
+			result=result%360;
+			if(result<0){
+				result+=360;
+			}
 		}
 
 		return result;

@@ -25,17 +25,16 @@ public class NavigatorDisplay extends Thread {
 		double[] position = new double[3];
 
 		// clear the display once
-		t.clear();
 
 		while (true) {
+			t.clear();
 			displayStart = System.currentTimeMillis();
 
 			// clear the lines for displaying odometry information
 			t.drawString("X:              ", 0, 0);
 			t.drawString("Y:              ", 0, 1);
 			t.drawString("T:              ", 0, 2);
-			t.drawString("US Distance: " + usPoller.getDistance(), 0, 2 );	// print last US reading
-
+			t.drawString("US Distance: " + usPoller.getDistance(), 0, 3 );	// print last US reading
 			// get the odometry information
 			odometer.getPosition(position, new boolean[] { true, true, true });
 
