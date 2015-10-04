@@ -78,6 +78,8 @@ public class Lab3  {
 					navigator.start();
 				}
 			}).start();
+			navigator.travelTo(0,0);
+			Sound.beep();
 			navigator.travelTo(0,60);
 			Sound.beep();
 			navigator.travelTo(60,0);

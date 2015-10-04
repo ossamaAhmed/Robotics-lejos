@@ -14,8 +14,8 @@ public class Navigator extends Thread {
     private double track;
     private double wr;
     private boolean isNavigating;
-    private int FORWARD_SPEED = 250;
-    private int ROTATE_SPEED = 150;
+    private int FORWARD_SPEED = 200;
+    private int ROTATE_SPEED = 50;
     private double desiredX;
     private double desiredY;
 
@@ -38,7 +38,9 @@ public class Navigator extends Thread {
    	 double dy = this.desiredY - odometer.getY();
    	 double distance = Math.sqrt((Math.pow(dx, 2) + Math.pow(dy, 2)));
    	 double distanceFromBlock= this.usPoller.getDistance();
-   	 if(distanceFromBlock<7){   		
+   	 if(distanceFromBlock<7){
+   		double oldAngle= odometer.getThetaDegrees();
+   		
    		turnTo(90);
    		leftMotor.setSpeed(FORWARD_SPEED);
       	rightMotor.setSpeed(FORWARD_SPEED);
@@ -55,8 +57,8 @@ public class Navigator extends Thread {
    		turnTo(-90);
    		leftMotor.setSpeed(FORWARD_SPEED);
       	rightMotor.setSpeed(FORWARD_SPEED);
-      	leftMotor.rotate(convertDistance(wr, 30), true);
-      	rightMotor.rotate(convertDistance(wr, 30), false);
+      	leftMotor.rotate(convertDistance(wr, 50), true);
+      	rightMotor.rotate(convertDistance(wr, 50), false);
       	
     	leftMotor.setSpeed(ROTATE_SPEED);
       	rightMotor.setSpeed(ROTATE_SPEED);
@@ -127,14 +129,13 @@ public class Navigator extends Thread {
    	 double dy = this.desiredY - odometer.getY();
    	 double theta = 0;
    	 double distance = Math.sqrt((Math.pow(dx, 2) + Math.pow(dy, 2)));
-   	 if(dx==0 && dy>0){
-   		 theta= Math.toDegrees(Math.PI/2);
-   	 }
-   	 else if(dx==0 &&dy<0){
-   		 theta= -1*Math.toDegrees(Math.PI/2);
-   	 }
 
-   	 else if (dx > 0) {
+   	 if (Math.abs(dx) > 0 && Math.abs(dx) < 2 && Math.abs(dy) > 0 && Math.abs(dy) < 2) {
+   		 // Heading is close enough to where it should be, don't change
+   		 // anything
+   		 theta = odometer.getThetaDegrees();
+
+   	 } else if (dx > 0) {
    		 theta = Math.toDegrees(Math.atan(dy / dx));
 
    	 }
