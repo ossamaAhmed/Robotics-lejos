@@ -1,4 +1,5 @@
 package ev3Ultrasonic;
+
 import ev3Navigator.Navigator;
 import lejos.robotics.SampleProvider;
 
@@ -12,32 +13,35 @@ import lejos.robotics.SampleProvider;
 //  of 1/70mS or about 14 Hz.
 //
 
-
-public class UltrasonicPoller extends Thread{
+public class UltrasonicPoller extends Thread {
 	private SampleProvider us;
 	private Navigator cont;
 	private float[] usData;
 	private int distance;
-	
+
 	public UltrasonicPoller(SampleProvider us, float[] usData) {
 		this.us = us;
 		this.usData = usData;
 	}
 
-//  Sensors now return floats using a uniform protocol.
-//  Need to convert US result to an integer [0,255]
-	
+	// Sensors now return floats using a uniform protocol.
+	// Need to convert US result to an integer [0,255]
+
 	public void run() {
 		int distance;
 		while (true) {
-			us.fetchSample(usData,0);							// acquire data
-			distance=(int)(usData[0]*100.0);					// extract from buffer, cast to int
-			this.distance = distance;						// now take action depending on value
-			try { Thread.sleep(60); } catch(Exception e){}		// Poor man's timed sampling
+			us.fetchSample(usData, 0); // acquire data
+			distance = (int) (usData[0] * 100.0); // extract from buffer, cast
+													// to int
+			this.distance = distance; // now take action depending on value
+			try {
+				Thread.sleep(60);
+			} catch (Exception e) {
+			} // Poor man's timed sampling
 		}
 	}
-	
-	public int getDistance(){
+
+	public int getDistance() {
 		return this.distance;
 	}
 

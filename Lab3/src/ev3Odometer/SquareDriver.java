@@ -9,10 +9,12 @@ public class SquareDriver {
 	private static final int FORWARD_SPEED = 200;
 	private static final int ROTATE_SPEED = 50;
 
-	public static void drive(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor,
-			double leftRadius, double rightRadius, double width) {
+	public static void drive(EV3LargeRegulatedMotor leftMotor,
+			EV3LargeRegulatedMotor rightMotor, double leftRadius,
+			double rightRadius, double width) {
 		// reset the motors
-		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
+		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {
+				leftMotor, rightMotor }) {
 			motor.stop();
 			motor.setAcceleration(3000);
 		}

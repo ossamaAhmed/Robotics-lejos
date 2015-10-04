@@ -8,16 +8,16 @@ import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Odometer extends Thread {
-	
+
 	public static int lastTachoL; // Tacho L at last sample
 	public static int lastTachoR; // Tacho R at last sample
 	public static int nowTachoL; // Current tacho L
 	public static int nowTachoR; // Current tacho R
-	private EV3LargeRegulatedMotor leftMotor ;
-	private EV3LargeRegulatedMotor rightMotor ;
+	private EV3LargeRegulatedMotor leftMotor;
+	private EV3LargeRegulatedMotor rightMotor;
 	public double WB; // Wheelbase (cm)
-	public double WR; // Wheel radius (cm) 
-	
+	public double WR; // Wheel radius (cm)
+
 	// robot position
 	private double X, Y, Theta;
 
@@ -28,15 +28,16 @@ public class Odometer extends Thread {
 	private Object lock;
 
 	// default constructor
-	public Odometer(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, double WB, double WR) {
+	public Odometer(EV3LargeRegulatedMotor leftMotor,
+			EV3LargeRegulatedMotor rightMotor, double WB, double WR) {
 		X = 0.0;
 		Y = 0.0;
-		Theta = 0.5*Math.PI;
+		Theta = 0.5 * Math.PI;
 		lock = new Object();
-		this.leftMotor=leftMotor;
-		this.rightMotor=rightMotor;
+		this.leftMotor = leftMotor;
+		this.rightMotor = rightMotor;
 		this.WB = WB;
-		this.WR =WR;
+		this.WR = WR;
 		this.leftMotor.resetTachoCount();
 		this.rightMotor.resetTachoCount();
 	}
@@ -48,22 +49,24 @@ public class Odometer extends Thread {
 		while (true) {
 			updateStart = System.currentTimeMillis();
 			// put (some of) your odometer code here
-			double distL, distR, deltaD, deltaT, dX, dY; 
-			nowTachoL = leftMotor.getTachoCount();      // get tacho counts 
-			nowTachoR = rightMotor.getTachoCount(); 
-			distL = Math.PI*WR*(nowTachoL-lastTachoL)/180;     // compute wheel 
-			distR = Math.PI*WR*(nowTachoR-lastTachoR)/180;   // displacements 
-			lastTachoL=nowTachoL;           // save tacho counts for next iteration 
-			lastTachoR=nowTachoR; 
-			deltaD = 0.5*(distL+distR);       // compute vehicle displacement 
-			deltaT = (distR-distL)/WB;        // compute change in heading 
-			Theta += deltaT;            // update heading 
-			dY = deltaD * Math.sin(Theta);    // compute Y component of displacement 
-			dX = deltaD * Math.cos(Theta);  // compute X component of displacement 
-			X = X + dX;            // update estimates of X and Y position 
+			double distL, distR, deltaD, deltaT, dX, dY;
+			nowTachoL = leftMotor.getTachoCount(); // get tacho counts
+			nowTachoR = rightMotor.getTachoCount();
+			distL = Math.PI * WR * (nowTachoL - lastTachoL) / 180; // compute
+																	// wheel
+			distR = Math.PI * WR * (nowTachoR - lastTachoR) / 180; // displacements
+			lastTachoL = nowTachoL; // save tacho counts for next iteration
+			lastTachoR = nowTachoR;
+			deltaD = 0.5 * (distL + distR); // compute vehicle displacement
+			deltaT = (distR - distL) / WB; // compute change in heading
+			Theta += deltaT; // update heading
+			dY = deltaD * Math.sin(Theta); // compute Y component of
+											// displacement
+			dX = deltaD * Math.cos(Theta); // compute X component of
+											// displacement
+			X = X + dX; // update estimates of X and Y position
 			Y = Y + dY;
 			//
-			
 
 			// this ensures that the odometer only runs once every period
 			updateEnd = System.currentTimeMillis();
@@ -77,7 +80,7 @@ public class Odometer extends Thread {
 				}
 			}
 		}
-		}
+	}
 
 	// accessors
 	public void getPosition(double[] position, boolean[] update) {
@@ -121,14 +124,15 @@ public class Odometer extends Thread {
 
 		return result;
 	}
+
 	public double getThetaDegrees() {
 		double result;
 
 		synchronized (lock) {
 			result = Math.toDegrees(Theta);
-			result=result%360;
-			if(result<0){
-				result+=360;
+			result = result % 360;
+			if (result < 0) {
+				result += 360;
 			}
 		}
 
