@@ -9,17 +9,17 @@ public class USLocalizer {
 	public static float ROTATION_SPEED = 30;
 
 	private Odometer odo;
-	private SampleProvider usSensor;
+	private SampleProvider usSource;
 	private float[] usData;
 	private LocalizationType locType;
 	private Navigation nav;
 
 	//
 
-	public USLocalizer(Odometer odo, SampleProvider usSensor, float[] usData,
+	public USLocalizer(Odometer odo, SampleProvider usSource, float[] usData,
 			LocalizationType locType) {
 		this.odo = odo;
-		this.usSensor = usSensor;
+		this.usSource = usSource;
 		this.usData = usData;
 		this.locType = locType;
 		this.nav = new Navigation(odo);
@@ -54,23 +54,9 @@ public class USLocalizer {
 			Sound.beep();
 			correctHeading(angleA, angleB);
 
-			// switch direction and wait until it sees no wall
-
-			// keep rotating until the robot sees a wall, then latch the angle
-
-			// angleA is clockwise from angleB, so assume the average of the
-			// angles to the right of angleB is 45 degrees past 'north'
-
-			// update the odometer position (example to follow:)
-			// odo.setPosition(new double[] { 0.0, 0.0, 0.0 }, new boolean[] {
-			// true, true, true });
+			
 		} else {
-			/*
-			 * The robot should turn until it sees the wall, then look for the
-			 * "rising edges:" the points where it no longer sees the wall. This
-			 * is very similar to the FALLING_EDGE routine, but the robot will
-			 * face toward the wall for most of it.
-			 */
+
 			// Begin rotating clockwise until there is a wall
 			nav.setSpeeds(ROTATION_SPEED, -1 * ROTATION_SPEED);
 			while (facingWall() == false) {
@@ -79,17 +65,17 @@ public class USLocalizer {
 			// there is no wall
 			while (facingWall() == true) {
 			}
-			// The robot now sees a wall, this is angle A
+			// The robot no longer sees a wall, this is angle A
 			angleA = odo.getAng();
 			Sound.beep();
 			// Switch direction of rotation then wait for a wall
 			nav.setSpeeds(-1 * ROTATION_SPEED, ROTATION_SPEED);
 			while (facingWall() == false) {
 			}
-			// The robot no longer sees a wall
+			// The robot now sees a wall
 			while (facingWall() == false) {
 			}
-			// The robot now sees a wall, this is angle B
+			// The robot no longer sees a wall, this is angle B
 			angleB = odo.getAng();
 			Sound.beep();
 			correctHeading(angleA, angleB);
@@ -100,7 +86,7 @@ public class USLocalizer {
 
 	private float getFilteredData() {
 		// Filters are implemented into the SampleProvider already
-		usSensor.fetchSample(usData, 0);
+		usSource.fetchSample(usData, 0);
 		return usData[0];
 	}
 
@@ -113,9 +99,9 @@ public class USLocalizer {
 
 	private boolean facingWall() {
 		boolean facingWall = true;
-		if (getFilteredData() < 40)
+		if (getFilteredData() < 0.40)
 			facingWall = true;
-		else if (getFilteredData() > 40)
+		else if (getFilteredData() > 0.40)
 			facingWall = false;
 		return facingWall;
 	}

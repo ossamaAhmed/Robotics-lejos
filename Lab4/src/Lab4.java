@@ -13,41 +13,56 @@ public class Lab4 {
 	// Right motor connected to output D
 	// Ultrasonic sensor port connected to input S1
 	// Color sensor port connected to input S2
-	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
-	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
-	private static final Port usPort = LocalEV3.get().getPort("S1");		
-	private static final Port colorPort = LocalEV3.get().getPort("S2");		
+	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(
+			LocalEV3.get().getPort("A"));
+	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(
+			LocalEV3.get().getPort("D"));
+	private static final Port usPort = LocalEV3.get().getPort("S1");
+	private static final Port colorPort = LocalEV3.get().getPort("S2");
 
-	
+	// Variables
+	private static final float maxValue = 0.5f;
+	private static final int usReadingsToAverage = 3;
+	private static final int colorReadingsToAverage = 3;
+
 	public static void main(String[] args) {
 		int buttonChoice = 0;
-		
-		//Setup ultrasonic sensor
-		// 1. Create a port object attached to a physical port (done above)
-		// 2. Create a sensor instance and attach to port
-		// 3. Create a sample provider instance for the above and initialize operating mode
-		// 4. Create a buffer for the sensor data
-		@SuppressWarnings("resource")							    	// Because we don't bother to close this resource
+		// Ultrasonic Sensor Initialization
+		@SuppressWarnings("resource")
 		SensorModes usSensor = new EV3UltrasonicSensor(usPort);
 		SampleProvider usReading = usSensor.getMode("Distance");
 		// Filter which caps sensor values to n
-		SampleProvider usCappedReading = new MaxValueFilter(usReading,50);
-		// stack a filter on the sensor that gives the running average of the last n samples
-		SampleProvider usAverageReading = new MeanFilter(usCappedReading, 3);
+		SampleProvider usCappedSource = new MaxValueFilter(usReading, maxValue);
+		// Stack a filter which takes average readings
+		SampleProvider usAveragedSource = new MeanFilter(usCappedSource,
+				usReadingsToAverage);
 		// The final, filtered data from the us sensor is stored in usSource
-		SampleProvider usFilteredReading = usAverageReading;
-		// initialise an array of floats for fetching samples
-		float[] usData = new float[usAverageReading.sampleSize()];
-		
-		//Setup color sensor
-		// 1. Create a port object attached to a physical port (done above)
-		// 2. Create a sensor instance and attach to port
-		// 3. Create a sample provider instance for the above and initialize operating mode
-		// 4. Create a buffer for the sensor data
+		SampleProvider usFilteredSource = usAveragedSource;
+		// initialize an array of floats for fetching samples
+		float[] usData = new float[usFilteredSource.sampleSize()];
+		//
+		//
+
+		// Color Sensor Initialization
+		@SuppressWarnings("resource")
 		SensorModes colorSensor = new EV3ColorSensor(colorPort);
-		SampleProvider colorSource = colorSensor.getMode("Red");			// colorValue provides samples from this instance
-		float[] colorData = new float[colorSource.sampleSize()];			// colorData is the buffer in which data are returned
-				
+		SampleProvider colorSource = colorSensor.getMode("Red");
+		// Stack a filter which takes average readings
+		SampleProvider colorAveragedSource = new MeanFilter(colorSource,
+				colorReadingsToAverage);
+		// The final, filtered data from the color sensor is stored in usSource
+		SampleProvider colorFilteredSource = colorAveragedSource;
+		// initialize an array of floats for fetching samples
+		float[] colorData = new float[colorFilteredSource.sampleSize()];
+		//
+		//
+
+		// Odometer and Display
+		Odometer odo = new Odometer(leftMotor, rightMotor, 30, true);
+		LCDInfo lcd = new LCDInfo(odo, usFilteredSource, usData,
+				colorFilteredSource, colorData);
+
+		// User Interface
 		(new Thread() {
 			public void run() {
 				while (Button.waitForAnyPress() != Button.ID_ESCAPE)
@@ -55,42 +70,47 @@ public class Lab4 {
 				System.exit(0);
 			}
 		}).start();
-		// setup the odometer and display
-		Odometer odo = new Odometer(leftMotor, rightMotor, 30, true);
-		LCDInfo lcd = new LCDInfo(odo,usFilteredReading,usData,colorSource,colorData);
-		
+
 		do {
 			buttonChoice = Button.waitForAnyPress();
 		}
-		
+
 		while (buttonChoice != Button.ID_LEFT
-				&& buttonChoice != Button.ID_RIGHT && buttonChoice != Button.ID_UP);
+				&& buttonChoice != Button.ID_RIGHT
+				&& buttonChoice != Button.ID_UP);
 
-		if (buttonChoice == Button.ID_LEFT){
-		// perform the ultrasonic localization with falling edge
-		USLocalizer usl = new USLocalizer(odo, usFilteredReading, usData, USLocalizer.LocalizationType.FALLING_EDGE);
-		usl.doLocalization();
+		if (buttonChoice == Button.ID_LEFT) {
+			// perform the ultrasonic localization with falling edge
+			USLocalizer usl = new USLocalizer(odo, usFilteredSource, usData,
+					USLocalizer.LocalizationType.FALLING_EDGE);
+			usl.doLocalization();
 		}
-		
-		else if (buttonChoice == Button.ID_RIGHT){
-		
-		
-		// perform the ultrasonic localization with rising edge
-		USLocalizer usl = new USLocalizer(odo, usFilteredReading, usData, USLocalizer.LocalizationType.RISING_EDGE);
-		usl.doLocalization();
+
+		else if (buttonChoice == Button.ID_RIGHT) {
+
+			// perform the ultrasonic localization with rising edge
+			USLocalizer usl = new USLocalizer(odo, usFilteredSource, usData,
+					USLocalizer.LocalizationType.RISING_EDGE);
+			usl.doLocalization();
 
 		}
-		
-		else if (buttonChoice== Button.ID_UP){
-		// Float motors for debugging
+
+		else if (buttonChoice == Button.ID_UP) {
+			// Float motors for debugging
 			leftMotor.forward();
 			leftMotor.flt();
 			rightMotor.forward();
 			rightMotor.flt();
 		}
-//		LightLocalizer lsl = new LightLocalizer(odo, colorValue, colorData);
-//		lsl.doLocalization();	
-		
+
+		else if (buttonChoice == Button.ID_DOWN) {
+			// perform light localization
+			LightLocalizer lsl = new LightLocalizer(odo, colorFilteredSource,
+					colorData);
+			lsl.doLocalization();
+
+		}
+
 	}
 
 }

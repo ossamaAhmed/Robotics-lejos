@@ -5,7 +5,7 @@ import lejos.utility.Timer;
 import lejos.utility.TimerListener;
 
 public class LCDInfo implements TimerListener{
-	public static final int LCD_REFRESH = 100;
+	public static final int LCD_REFRESH = 200;
 	private Odometer odo;
 	private Timer lcdTimer;
 	private TextLCD LCD = LocalEV3.get().getTextLCD();;
@@ -39,6 +39,9 @@ public class LCDInfo implements TimerListener{
 		LCD.drawInt((int)(pos[0] * 10), 3, 0);
 		LCD.drawInt((int)(pos[1] * 10), 3, 1);
 		LCD.drawInt((int)pos[2], 3, 2);
-		
+		usSource.fetchSample(usData, 0);
+		colorSource.fetchSample(colorData, 0);
+		LCD.drawString("US Distance: " + (int)usData[0], 0, 3 );	// print last US reading
+		LCD.drawString("Color Reading: " + (int)colorData[0], 0, 4 );	// print last color reading
 	}
 }

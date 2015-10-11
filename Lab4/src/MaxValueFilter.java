@@ -3,9 +3,9 @@ import lejos.robotics.filter.AbstractFilter;
 
 public class MaxValueFilter extends AbstractFilter {
 	float[] sample;
-	private int max;
+	private float max;
 
-	public MaxValueFilter(SampleProvider source, int max) {
+	public MaxValueFilter(SampleProvider source, float max) {
 		super(source);
 		this.max = max;
 	}
