@@ -22,7 +22,7 @@ public class Lab4 {
 
 	// Variables
 	private static final float maxValue = 0.5f;
-	private static final int usReadingsToAverage = 3;
+	private static final int usReadingsToAverage = 5;
 	private static final int colorReadingsToAverage = 3;
 
 	public static void main(String[] args) {
