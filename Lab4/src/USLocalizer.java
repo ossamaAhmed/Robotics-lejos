@@ -32,7 +32,7 @@ public class USLocalizer {
 		if (locType == LocalizationType.FALLING_EDGE) {
 			// Begin rotating clockwise until there is no wall
 			nav.setSpeeds(ROTATION_SPEED, -1 * ROTATION_SPEED);
-			while (facingWall() != 0) {
+			while (facingWall() != 0) { //you dont see a wall
 			}
 			// The robot no longer sees a wall (or never did), keep rotating
 			// till there is a wall
@@ -51,7 +51,7 @@ public class USLocalizer {
 			// The robot now sees a wall, this is angle B
 			angleB = odo.getAng();
 			Sound.beep();
-			correctHeading(angleA, angleB);
+			odo.setAng(225-(getAngleDistance(angleA,angleB)/2));
 
 			
 		} else {
@@ -77,7 +77,7 @@ public class USLocalizer {
 			// The robot no longer sees a wall, this is angle B
 			angleB = odo.getAng();
 			Sound.beep();
-			correctHeading(angleA, angleB);
+			odo.setAng(225+(getAngleDistance(angleA,angleB)/2));
 		}
 		// Stop robot
 		nav.setSpeeds(0, 0);
@@ -95,15 +95,15 @@ public class USLocalizer {
 //		} else if (a > b)
 //			odo.setAng(135 + ((b - a + 360) / 2));
 		
-		odo.setAng(135+getAngleDistance(a,b));
+		odo.setAng(225+(getAngleDistance(a,b)/2));
 	}
 
 	private int facingWall() {
 		// 1 = True, 0 = False , 2 = Don't know
 		int facingWall = 2;
-		if (getFilteredData() < 0.38)
+		if (getFilteredData() < 0.34)
 			facingWall = 1;
-		else if (getFilteredData() > 0.42)
+		else if (getFilteredData() > 0.44)
 			facingWall = 0;
 		return facingWall;
 	}
@@ -117,6 +117,7 @@ public class USLocalizer {
 		// Account for wrapping
 		if (result > 180) {
 			result = -1 * (result - 360);
+			Sound.buzz();
 		}
 
 		return result;

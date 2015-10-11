@@ -22,6 +22,8 @@ public class LCDInfo implements TimerListener{
 		this.lcdTimer = new Timer(LCD_REFRESH, this);
 		this.usSource = usSource;
 		this.usData = usData;
+		this.colorSource= colorSource;
+		this.colorData=colorData;
 		
 		// initialise the arrays for displaying data
 		pos = new double [3];
@@ -33,15 +35,15 @@ public class LCDInfo implements TimerListener{
 	public void timedOut() { 
 		odo.getPosition(pos);
 		LCD.clear();
-		LCD.drawString("X: ", 0, 0);
-		LCD.drawString("Y: ", 0, 1);
-		LCD.drawString("H: ", 0, 2);
-		LCD.drawInt((int)(pos[0] * 10), 3, 0);
-		LCD.drawInt((int)(pos[1] * 10), 3, 1);
-		LCD.drawInt((int)pos[2], 3, 2);
+		LCD.drawString("X: "+ pos[0], 0, 0);
+		LCD.drawString("Y: "+pos[1], 0, 1);
+		LCD.drawString("H: "+pos[2], 0, 2);
+//		LCD.drawString(, 3, 0);
+//		LCD.drawInt((int)(pos[1] * 10), 3, 1);
+//		LCD.drawInt((int)pos[2], 3, 2);
 		usSource.fetchSample(usData, 0);
 		colorSource.fetchSample(colorData, 0);
-		LCD.drawString("US Distance: " + (int)usData[0], 0, 3 );	// print last US reading
-		LCD.drawString("Color Reading: " + (int)colorData[0], 0, 4 );	// print last color reading
+		LCD.drawString("US Distance: " + usData[0], 0, 3 );	// print last US reading
+		LCD.drawString("Color Reading: " + colorData[0], 0, 4 );	// print last color reading
 	}
 }

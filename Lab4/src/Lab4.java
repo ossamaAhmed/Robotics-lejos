@@ -21,9 +21,9 @@ public class Lab4 {
 	private static final Port colorPort = LocalEV3.get().getPort("S2");
 
 	// Variables
-	private static final float maxValue = 0.5f;
-	private static final int usReadingsToAverage = 5;
-	private static final int colorReadingsToAverage = 3;
+	private static final float maxValue = 0.5f; //us threshold
+	private static final int usReadingsToAverage = 10; 
+	private static final int colorReadingsToAverage = 10;
 
 	public static void main(String[] args) {
 		int buttonChoice = 0;
@@ -34,8 +34,7 @@ public class Lab4 {
 		// Filter which caps sensor values to n
 		SampleProvider usCappedSource = new MaxValueFilter(usReading, maxValue);
 		// Stack a filter which takes average readings
-		SampleProvider usAveragedSource = new MeanFilter(usCappedSource,
-				usReadingsToAverage);
+		SampleProvider usAveragedSource = new MeanFilter(usCappedSource,usReadingsToAverage);
 		// The final, filtered data from the us sensor is stored in usSource
 		SampleProvider usFilteredSource = usAveragedSource;
 		// initialize an array of floats for fetching samples
@@ -48,8 +47,7 @@ public class Lab4 {
 		SensorModes colorSensor = new EV3ColorSensor(colorPort);
 		SampleProvider colorSource = colorSensor.getMode("Red");
 		// Stack a filter which takes average readings
-		SampleProvider colorAveragedSource = new MeanFilter(colorSource,
-				colorReadingsToAverage);
+		SampleProvider colorAveragedSource = new MeanFilter(colorSource,colorReadingsToAverage);
 		// The final, filtered data from the color sensor is stored in usSource
 		SampleProvider colorFilteredSource = colorAveragedSource;
 		// initialize an array of floats for fetching samples
@@ -77,7 +75,7 @@ public class Lab4 {
 
 		while (buttonChoice != Button.ID_LEFT
 				&& buttonChoice != Button.ID_RIGHT
-				&& buttonChoice != Button.ID_UP);
+				&& buttonChoice != Button.ID_UP && buttonChoice != Button.ID_DOWN);
 
 		if (buttonChoice == Button.ID_LEFT) {
 			// perform the ultrasonic localization with falling edge

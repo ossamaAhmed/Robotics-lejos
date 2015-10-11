@@ -1,0 +1,78 @@
+import lejos.hardware.Sound;
+import lejos.robotics.SampleProvider;
+
+public class LightLocalizer {
+	// Resources
+	private Odometer odo;
+	private SampleProvider colorSource;
+	private float[] colorData;
+	private Navigation nav;
+
+	// Variables
+	private double d = 7.8; // Distance from centre of rotation to light sensor
+	private int xStart = 12;
+	private int yStart = 12;
+	public static float ROTATION_SPEED = 40;
+	private double intersectionAngles[] = { 0, 0, 0, 0, 0 };
+
+	public LightLocalizer(Odometer odo, SampleProvider colorSource, float[] colorData) {
+		this.odo = odo;
+		this.colorSource = colorSource;
+		this.colorData = colorData;
+		this.nav = new Navigation(odo);
+		nav.start();
+	}
+
+	public void doLocalization() {
+		// drive to location listed in tutorial
+		// start rotating and clock all 4 gridlines
+		// do trig to compute (0,0) and 0 degrees
+
+		// when done travel to (0,0) and turn to 0 degrees
+
+		// Travel to starting position and face south
+		//nav.travelTo(xStart, yStart);
+		nav.turnTo(270, true);
+
+		// Begin counter-clockwise turn
+		nav.setSpeeds(-1 * ROTATION_SPEED, ROTATION_SPEED);
+
+		// Record the angle of 4 intersections
+		int i = 1;
+		while (i < 5) {
+			colorSource.fetchSample(colorData, 0);
+			// If a line is detected AND the reading is distinct to ensure we don't double count lines
+			if (colorData[0] < 0.50 && getAngleDistance(intersectionAngles[i - 1], odo.getAng()) > 10) {
+				Sound.beep();
+				intersectionAngles[i] = odo.getAng();
+				i++;
+			}
+		}
+		double newX = d * Math.cos(0.5 * getAngleDistance(intersectionAngles[1], intersectionAngles[3]));
+		double newY = d * Math.cos(0.5 * getAngleDistance(intersectionAngles[2], intersectionAngles[4]));
+		double newTheta = 45 + 0.5 * getAngleDistance(intersectionAngles[1], intersectionAngles[4]);
+		double newPosition[] = { newX, newY, newTheta };
+		boolean update[] = { true, true, true };
+		odo.setPosition(newPosition, update);
+		
+		// TODO
+		//Stop for now, but the robot should go to 0,0,0
+		nav.setSpeeds(0,0); 
+
+	}
+
+	public double getAngleDistance(double a, double b) {
+		// Given a and b, find the minimum distance between a and b (in degrees)
+		// while accounting for angle wrapping
+		double result = 0;
+		// Find the difference
+		result = Math.abs(a - b);
+		// Account for wrapping
+		if (result > 180) {
+			result = -1 * (result - 360);
+		}
+
+		return result;
+	}
+
+}

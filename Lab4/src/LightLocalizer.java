@@ -9,10 +9,10 @@ public class LightLocalizer {
 	private Navigation nav;
 
 	// Variables
-	private double d = 5; // Distance from centre of rotation to light sensor
+	private double d = 7.8; // Distance from centre of rotation to light sensor
 	private int xStart = 12;
 	private int yStart = 12;
-	public static float ROTATION_SPEED = 40;
+	public static float ROTATION_SPEED = 50;
 	private double intersectionAngles[] = { 0, 0, 0, 0, 0 };
 
 	public LightLocalizer(Odometer odo, SampleProvider colorSource, float[] colorData) {
@@ -31,7 +31,7 @@ public class LightLocalizer {
 		// when done travel to (0,0) and turn to 0 degrees
 
 		// Travel to starting position and face south
-		nav.travelTo(xStart, yStart);
+		//nav.travelTo(xStart, yStart);
 		nav.turnTo(270, true);
 
 		// Begin counter-clockwise turn
@@ -42,21 +42,25 @@ public class LightLocalizer {
 		while (i < 5) {
 			colorSource.fetchSample(colorData, 0);
 			// If a line is detected AND the reading is distinct to ensure we don't double count lines
-			if (colorData[0] < 0.50 && getAngleDistance(intersectionAngles[i - 1], odo.getAng()) > 5) {
+			if (colorData[0] < 0.20 && getAngleDistance(intersectionAngles[i - 1], odo.getAng()) > 15) {
 				Sound.beep();
 				intersectionAngles[i] = odo.getAng();
 				i++;
 			}
 		}
-		double newX = d * Math.cos(0.5 * getAngleDistance(intersectionAngles[1], intersectionAngles[3]));
-		double newY = d * Math.cos(0.5 * getAngleDistance(intersectionAngles[2], intersectionAngles[4]));
-		double newTheta = 45 + 0.5 * getAngleDistance(intersectionAngles[1], intersectionAngles[4]);
+		double newX = -1*d * Math.cos(Math.toRadians(getAngleDistance(intersectionAngles[1], intersectionAngles[3]))*0.5);
+		double newY = -1*d * Math.cos(Math.toRadians(getAngleDistance(intersectionAngles[2], intersectionAngles[4]))*0.5);
+		//double newTheta = 225- 0.5 * getAngleDistance(intersectionAngles[1], intersectionAngles[4]);
+		//double newTheta= 360-intersectionAngles[1]+intersectionAngles[4];
+		double newTheta= (90-(intersectionAngles[1]-180)+(intersectionAngles[3]/2))+odo.getAng();
 		double newPosition[] = { newX, newY, newTheta };
 		boolean update[] = { true, true, true };
 		odo.setPosition(newPosition, update);
 		
 		// TODO
 		//Stop for now, but the robot should go to 0,0,0
+		nav.travelTo(0, 0);
+		nav.turnTo(0,true);
 		nav.setSpeeds(0,0); 
 
 	}
