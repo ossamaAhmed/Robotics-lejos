@@ -46,7 +46,7 @@ public class LightLocalizer {
 				i++;
 			}
 			double newX = d * Math.cos(0.5 * getAngleDifference(intersectionAngles[0], intersectionAngles[2]));
-			double newY = d * Math.sin(0.5 * getAngleDifference(intersectionAngles[1], intersectionAngles[3]));
+			double newY = d * Math.cos(0.5 * getAngleDifference(intersectionAngles[1], intersectionAngles[3]));
 			double newTheta = 45 + 0.5 * getAngleDifference(intersectionAngles[0], intersectionAngles[3]);
 			double newPosition[] = { newX, newY, newTheta };
 			boolean update[] = { true, true, true };
