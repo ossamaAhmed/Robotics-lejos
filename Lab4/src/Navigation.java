@@ -11,10 +11,10 @@
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Navigation extends Thread {
-	final int FAST = 100;
+	final int FAST = 75;
 	final int SLOW = 50;
 	static final int ACCELERATION = 1500;
-	final static double DEG_ERR = 1.0, CM_ERR = 0.5;
+	final static double DEG_ERR = 2.0, CM_ERR = 0.75;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 

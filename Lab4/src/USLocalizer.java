@@ -6,7 +6,9 @@ public class USLocalizer {
 		FALLING_EDGE, RISING_EDGE
 	};
 
+	// Variables
 	public static float ROTATION_SPEED = 40;
+	private int cornerAngle = 225;
 
 	private Odometer odo;
 	private SampleProvider usSource;
@@ -16,8 +18,7 @@ public class USLocalizer {
 
 	//
 
-	public USLocalizer(Odometer odo, SampleProvider usSource, float[] usData,
-			LocalizationType locType) {
+	public USLocalizer(Odometer odo, SampleProvider usSource, float[] usData, LocalizationType locType) {
 		this.odo = odo;
 		this.usSource = usSource;
 		this.usData = usData;
@@ -30,84 +31,54 @@ public class USLocalizer {
 		double angleA, angleB;
 
 		if (locType == LocalizationType.FALLING_EDGE) {
-			// Begin rotating clockwise until there is no wall
 			nav.setSpeeds(ROTATION_SPEED, -1 * ROTATION_SPEED);
-			while (facingWall() != 0) { //you dont see a wall
+			while (facingWall() != 0) { // read: Rotate clockwise until facing wall == false
 			}
-			// The robot no longer sees a wall (or never did), keep rotating
-			// till there is a wall
-			while (facingWall() != 1) {
+			while (facingWall() != 1) { // Rotate clockwise until facing wall == true
 			}
-			// The robot now sees a wall, this is angle A
-			angleA = odo.getAng();
+			angleA = odo.getAng(); // First wall detected, this is angle A. Switch directions
 			Sound.beep();
-			// Switch direction of rotation then wait for no wall
 			nav.setSpeeds(-1 * ROTATION_SPEED, ROTATION_SPEED);
-			while (facingWall() != 0) {
+			while (facingWall() != 0) { // Rotate c-clockwise until facing wall == false
 			}
-			// The robot no longer sees a wall, now wait until we see a wall
-			while (facingWall() != 1) {
+			while (facingWall() != 1) { // Rotate c-clockwise until facing wall == true
 			}
-			// The robot now sees a wall, this is angle B
-			angleB = odo.getAng();
+			angleB = odo.getAng(); // Second wall detected, this is angle B.
 			Sound.beep();
-			odo.setAng(225-(getAngleDistance(angleA,angleB)/2));
+			odo.setAng(cornerAngle - (getAngleDistance(angleA, angleB) / 2)); // Fix heading
 
-			
 		} else {
-
-			// Begin rotating clockwise until there is a wall
 			nav.setSpeeds(ROTATION_SPEED, -1 * ROTATION_SPEED);
-			while (facingWall() != 1) {
+			while (facingWall() != 1) { // Rotate clockwise until facing wall == true
 			}
-			// The robot sees a wall (or it always did), keep rotating till
-			// there is no wall
-			while (facingWall() != 0) {
+			while (facingWall() != 0) { // Rotate clockwise until facing wall == false
 			}
-			// The robot no longer sees a wall, this is angle A
-			angleA = odo.getAng();
+			angleA = odo.getAng(); // First wall detected, this is angle A. Switch directions
 			Sound.beep();
-			// Switch direction of rotation then wait for a wall
 			nav.setSpeeds(-1 * ROTATION_SPEED, ROTATION_SPEED);
-			while (facingWall() != 1) {
+			while (facingWall() != 1) { // Rotate c-clockwise until facing wall == true
 			}
-			// The robot now sees a wall, now keep rotating till we no longer see a wall
-			while (facingWall() != 0) {
+			while (facingWall() != 0) { // Rotate c-clockwise until facing wall == false
 			}
-			// The robot no longer sees a wall, this is angle B
-			angleB = odo.getAng();
+			angleB = odo.getAng(); // Second wall detected, this is angle B.
 			Sound.beep();
-			odo.setAng(225+(getAngleDistance(angleA,angleB)/2));
+			odo.setAng(cornerAngle + (getAngleDistance(angleA, angleB) / 2)); // Fix Heading
 		}
-		// Stop robot
+		nav.turnTo(0, true);
 		nav.setSpeeds(0, 0);
-	}
-
-	private float getFilteredData() {
-		// Filters are implemented into the SampleProvider already
-		usSource.fetchSample(usData, 0);
-		return usData[0];
-	}
-
-	private void correctHeading(double a, double b) {
-//		if (a < b) {
-//			odo.setAng(135 + ((b - a) / 2));
-//		} else if (a > b)
-//			odo.setAng(135 + ((b - a + 360) / 2));
-		
-		odo.setAng(225+(getAngleDistance(a,b)/2));
 	}
 
 	private int facingWall() {
 		// 1 = True, 0 = False , 2 = Don't know
+		usSource.fetchSample(usData, 0);
 		int facingWall = 2;
-		if (getFilteredData() < 0.34)
+		if (usData[0] < 0.34)
 			facingWall = 1;
-		else if (getFilteredData() > 0.44)
+		else if (usData[0] > 0.44)
 			facingWall = 0;
 		return facingWall;
 	}
-	
+
 	public double getAngleDistance(double a, double b) {
 		// Given a and b, find the minimum distance between a and b (in degrees)
 		// while accounting for angle wrapping
@@ -117,7 +88,6 @@ public class USLocalizer {
 		// Account for wrapping
 		if (result > 180) {
 			result = -1 * (result - 360);
-			Sound.buzz();
 		}
 
 		return result;

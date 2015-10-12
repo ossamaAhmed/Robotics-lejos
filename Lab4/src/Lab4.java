@@ -13,17 +13,15 @@ public class Lab4 {
 	// Right motor connected to output D
 	// Ultrasonic sensor port connected to input S1
 	// Color sensor port connected to input S2
-	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(
-			LocalEV3.get().getPort("A"));
-	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(
-			LocalEV3.get().getPort("D"));
+	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
+	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 	private static final Port usPort = LocalEV3.get().getPort("S1");
 	private static final Port colorPort = LocalEV3.get().getPort("S2");
 
 	// Variables
-	private static final float maxValue = 0.5f; //us threshold
-	private static final int usReadingsToAverage = 10; 
-	private static final int colorReadingsToAverage = 10;
+	private static final float maxValue = 0.5f; // us threshold
+	private static final int usReadingsToAverage = 10;
+	private static final int colorReadingsToAverage = 3;
 
 	public static void main(String[] args) {
 		int buttonChoice = 0;
@@ -34,8 +32,8 @@ public class Lab4 {
 		// Filter which caps sensor values to n
 		SampleProvider usCappedSource = new MaxValueFilter(usReading, maxValue);
 		// Stack a filter which takes average readings
-		SampleProvider usAveragedSource = new MeanFilter(usCappedSource,usReadingsToAverage);
-		// The final, filtered data from the us sensor is stored in usSource
+		SampleProvider usAveragedSource = new MeanFilter(usCappedSource, usReadingsToAverage);
+		// The final, filtered data from the us sensor is stored in usFilteredSource
 		SampleProvider usFilteredSource = usAveragedSource;
 		// initialize an array of floats for fetching samples
 		float[] usData = new float[usFilteredSource.sampleSize()];
@@ -47,8 +45,8 @@ public class Lab4 {
 		SensorModes colorSensor = new EV3ColorSensor(colorPort);
 		SampleProvider colorSource = colorSensor.getMode("Red");
 		// Stack a filter which takes average readings
-		SampleProvider colorAveragedSource = new MeanFilter(colorSource,colorReadingsToAverage);
-		// The final, filtered data from the color sensor is stored in usSource
+		SampleProvider colorAveragedSource = new MeanFilter(colorSource, colorReadingsToAverage);
+		// The final, filtered data from the color sensor is stored in colorFilteredSource
 		SampleProvider colorFilteredSource = colorAveragedSource;
 		// initialize an array of floats for fetching samples
 		float[] colorData = new float[colorFilteredSource.sampleSize()];
@@ -57,8 +55,7 @@ public class Lab4 {
 
 		// Odometer and Display
 		Odometer odo = new Odometer(leftMotor, rightMotor, 30, true);
-		LCDInfo lcd = new LCDInfo(odo, usFilteredSource, usData,
-				colorFilteredSource, colorData);
+		LCDInfo lcd = new LCDInfo(odo, usFilteredSource, usData, colorFilteredSource, colorData);
 
 		// User Interface
 		(new Thread() {
@@ -73,23 +70,22 @@ public class Lab4 {
 			buttonChoice = Button.waitForAnyPress();
 		}
 
-		while (buttonChoice != Button.ID_LEFT
-				&& buttonChoice != Button.ID_RIGHT
-				&& buttonChoice != Button.ID_UP && buttonChoice != Button.ID_DOWN);
+		while (buttonChoice != Button.ID_LEFT && buttonChoice != Button.ID_RIGHT && buttonChoice != Button.ID_UP && buttonChoice != Button.ID_DOWN);
 
 		if (buttonChoice == Button.ID_LEFT) {
 			// perform the ultrasonic localization with falling edge
-			USLocalizer usl = new USLocalizer(odo, usFilteredSource, usData,
-					USLocalizer.LocalizationType.FALLING_EDGE);
+			USLocalizer usl = new USLocalizer(odo, usFilteredSource, usData, USLocalizer.LocalizationType.FALLING_EDGE);
 			usl.doLocalization();
 		}
 
 		else if (buttonChoice == Button.ID_RIGHT) {
 
 			// perform the ultrasonic localization with rising edge
-			USLocalizer usl = new USLocalizer(odo, usFilteredSource, usData,
-					USLocalizer.LocalizationType.RISING_EDGE);
+			USLocalizer usl = new USLocalizer(odo, usFilteredSource, usData, USLocalizer.LocalizationType.RISING_EDGE);
 			usl.doLocalization();
+
+			LightLocalizer lsl = new LightLocalizer(odo, colorFilteredSource, colorData);
+			lsl.doLocalization();
 
 		}
 
@@ -103,8 +99,7 @@ public class Lab4 {
 
 		else if (buttonChoice == Button.ID_DOWN) {
 			// perform light localization
-			LightLocalizer lsl = new LightLocalizer(odo, colorFilteredSource,
-					colorData);
+			LightLocalizer lsl = new LightLocalizer(odo, colorFilteredSource, colorData);
 			lsl.doLocalization();
 
 		}

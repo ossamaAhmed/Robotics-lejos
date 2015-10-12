@@ -41,9 +41,9 @@ public class LCDInfo implements TimerListener{
 //		LCD.drawString(, 3, 0);
 //		LCD.drawInt((int)(pos[1] * 10), 3, 1);
 //		LCD.drawInt((int)pos[2], 3, 2);
-		usSource.fetchSample(usData, 0);
-		colorSource.fetchSample(colorData, 0);
-		LCD.drawString("US Distance: " + usData[0], 0, 3 );	// print last US reading
-		LCD.drawString("Color Reading: " + colorData[0], 0, 4 );	// print last color reading
+//		usSource.fetchSample(usData, 0);
+//		colorSource.fetchSample(colorData, 0);
+//		LCD.drawString("US Distance: " + usData[0], 0, 3 );	// print last US reading
+//		LCD.drawString("Color Reading: " + colorData[0], 0, 4 );	// print last color reading
 	}
 }
