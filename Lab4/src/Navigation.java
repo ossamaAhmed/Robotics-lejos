@@ -13,8 +13,8 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 public class Navigation extends Thread {
 	final int FAST = 75;
 	final int SLOW = 50;
-	static final int ACCELERATION = 1500;
-	final static double DEG_ERR = 2.0, CM_ERR = 0.75;
+	static final int ACCELERATION = 4000;
+	final static double DEG_ERR = 1.0, CM_ERR = 0.75;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 
@@ -75,11 +75,11 @@ public class Navigation extends Thread {
 	 */
 	public void travelTo(double x, double y) {
 		double minAng;
+		minAng = (Math.atan2(y - odometer.getY(), x - odometer.getX())) * (180.0 / Math.PI);
+		if (minAng < 0)
+			minAng += 360.0;
+		this.turnTo(minAng, false);
 		while (Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR) {
-			minAng = (Math.atan2(y - odometer.getY(), x - odometer.getX())) * (180.0 / Math.PI);
-			if (minAng < 0)
-				minAng += 360.0;
-			this.turnTo(minAng, false);
 			this.setSpeeds(FAST, FAST);
 		}
 		this.setSpeeds(0, 0);

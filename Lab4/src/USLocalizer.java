@@ -7,8 +7,8 @@ public class USLocalizer {
 	};
 
 	// Variables
-	public static float ROTATION_SPEED = 40;
-	private int cornerAngle = 225;
+	public static float ROTATION_SPEED = 75;
+	private int cornerAngle = 235;
 
 	private Odometer odo;
 	private SampleProvider usSource;
@@ -34,15 +34,19 @@ public class USLocalizer {
 			nav.setSpeeds(ROTATION_SPEED, -1 * ROTATION_SPEED);
 			while (facingWall() != 0) { // read: Rotate clockwise until facing wall == false
 			}
+			sleep();
 			while (facingWall() != 1) { // Rotate clockwise until facing wall == true
 			}
+			sleep();
 			angleA = odo.getAng(); // First wall detected, this is angle A. Switch directions
 			Sound.beep();
 			nav.setSpeeds(-1 * ROTATION_SPEED, ROTATION_SPEED);
 			while (facingWall() != 0) { // Rotate c-clockwise until facing wall == false
 			}
+			sleep();
 			while (facingWall() != 1) { // Rotate c-clockwise until facing wall == true
 			}
+			sleep();
 			angleB = odo.getAng(); // Second wall detected, this is angle B.
 			Sound.beep();
 			odo.setAng(cornerAngle - (getAngleDistance(angleA, angleB) / 2)); // Fix heading
@@ -91,6 +95,14 @@ public class USLocalizer {
 		}
 
 		return result;
+	}
+	public void sleep(){
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
