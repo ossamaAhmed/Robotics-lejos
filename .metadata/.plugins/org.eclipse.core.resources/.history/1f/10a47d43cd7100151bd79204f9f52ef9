@@ -17,8 +17,6 @@ public class Lab4 {
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 	private static final Port usPort = LocalEV3.get().getPort("S1");
 	private static final Port colorPort = LocalEV3.get().getPort("S2");
-	private static float lightThreshold=0.40f;
-	private static int lightSensorDistance=11;
 
 	// Variables
 	private static final float maxValue = 0.5f; // us threshold
@@ -90,23 +88,23 @@ public class Lab4 {
 			Navigation nav = new Navigation(odo);
 			nav.start();
 			colorSource.fetchSample(colorData, 0);
-			while(colorData[0]<lightThreshold)
+			while(colorData[0]<0.40)
 			{
 				colorSource.fetchSample(colorData, 0);
 				nav.travelTo(odo.getX()+1, odo.getY());
 			}
 			sleep();
-			nav.travelTo(odo.getX()+lightSensorDistance, odo.getY());
+			nav.travelTo(odo.getX()+11, odo.getY());
 			sleep();
 			nav.turnTo(90, true);
 			sleep();
 			colorSource.fetchSample(colorData, 0);
-			while(colorData[0]<lightThreshold){
+			while(colorData[0]<0.40){
 				colorSource.fetchSample(colorData, 0);
 				nav.travelTo(odo.getX(), odo.getY()+1);
 			}
 			sleep();
-			nav.travelTo(odo.getX(), odo.getY()+lightSensorDistance);
+			nav.travelTo(odo.getX(), odo.getY()+11);
 			sleep();
 			nav.turnTo(0, true);
 			Sound.beep();

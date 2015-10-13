@@ -46,7 +46,9 @@ public class LightLocalizer {
 		}
 		double newX = -1 * d * Math.cos(Math.toRadians(getAngleDistance(intersectionAngles[1], intersectionAngles[3])) * 0.5);
 		double newY = -1 * d * Math.cos(Math.toRadians(getAngleDistance(intersectionAngles[2], intersectionAngles[4])) * 0.5);
-		double newTheta = 225- 0.5 * getAngleDistance(intersectionAngles[1], intersectionAngles[4]);
+		// double newTheta = 225- 0.5 * getAngleDistance(intersectionAngles[1], intersectionAngles[4]);
+		// double newTheta= 360-intersectionAngles[1]+intersectionAngles[4];
+		double newTheta = (90 - (intersectionAngles[1] - 180) + (intersectionAngles[3] / 2)) - odo.getAng();
 		double newPosition[] = { newX, newY, newTheta };
 		boolean update[] = { true, true, true };
 		odo.setPosition(newPosition, update);

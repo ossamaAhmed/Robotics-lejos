@@ -18,7 +18,6 @@ public class Lab4 {
 	private static final Port usPort = LocalEV3.get().getPort("S1");
 	private static final Port colorPort = LocalEV3.get().getPort("S2");
 	private static float lightThreshold=0.40f;
-	private static int lightSensorDistance=11;
 
 	// Variables
 	private static final float maxValue = 0.5f; // us threshold
