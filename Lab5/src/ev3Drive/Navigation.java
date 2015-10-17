@@ -12,7 +12,7 @@ package ev3Drive;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Navigation extends Thread {
-	final int FAST = 75;
+	final int FAST = 200;
 	final int SLOW = 50;
 	static final int ACCELERATION = 1500;
 	final static double DEG_ERR = 2.0, CM_ERR = 0.75;

@@ -25,7 +25,7 @@ public class Lab5 {
 	private static final Port colorPort = LocalEV3.get().getPort("S2");
 
 	// Variables
-	private static final float maxUltrasonicReading = 0.5f; // Max value for us clipping filter
+	private static final float maxUltrasonicReading = 2.0f; // Max value for us clipping filter
 	private static final int usReadingsToMedian = 5;
 	private static final int colorReadingsToMedian = 5;
 	public static void main(String[] args) {
@@ -66,6 +66,8 @@ public class Lab5 {
 		if (buttonChoice == Button.ID_LEFT) {
 //			 perform the ultrasonic localization with falling edge
 			usPoller.start();
+			colorPoller.start();
+			objectPoller.start();
 			USLocalizer usl = new USLocalizer(odo, usPoller, USLocalizer.LocalizationType.FALLING_EDGE);
 			usl.doLocalization();
 		}
@@ -75,6 +77,8 @@ public class Lab5 {
 
 			// perform the ultrasonic localization with rising edge
 			usPoller.start();
+			colorPoller.start();
+			objectPoller.start();
 			USLocalizer usl = new USLocalizer(odo, usPoller, USLocalizer.LocalizationType.RISING_EDGE);
 			usl.doLocalization();
 //
@@ -97,9 +101,12 @@ public class Lab5 {
 
 		// Down Button
 		else if (buttonChoice == Button.ID_DOWN) {
-			// perform light localization
-//			LightLocalizer lsl = new LightLocalizer(odo, colorFilteredSource, colorData);
-//			lsl.doLocalization();
+			// board search
+			usPoller.start();
+			colorPoller.start();
+			objectPoller.start();
+			ObjectSearch objectSearch = new ObjectSearch(odo,objectPoller);
+			objectSearch.doBoardSearch();
 
 		}
 
