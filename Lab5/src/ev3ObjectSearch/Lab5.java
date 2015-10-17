@@ -6,6 +6,7 @@ import ev3Sensors.FilteredUltrasonicPoller;
 import ev3Sensors.MaxValueFilter;
 import lejos.hardware.*;
 import lejos.hardware.ev3.LocalEV3;
+import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.Port;
 import lejos.hardware.sensor.*;
@@ -44,8 +45,6 @@ public class Lab5 {
 
 		// Odometer and Display
 		Odometer odo = new Odometer(leftMotor, rightMotor, 30, true);
-		@SuppressWarnings("unused")
-		LCDInfo lcd = new LCDInfo(odo, usPoller,colorPoller,objectPoller);
 
 		// User Interface
 		(new Thread() {
@@ -55,6 +54,9 @@ public class Lab5 {
 				System.exit(0);
 			}
 		}).start();
+		
+		TextLCD LCD = LocalEV3.get().getTextLCD();;
+		LCD.drawString("Ready", 0, 0);
 
 		do {
 			buttonChoice = Button.waitForAnyPress();
@@ -69,7 +71,11 @@ public class Lab5 {
 			colorPoller.start();
 			objectPoller.start();
 			USLocalizer usl = new USLocalizer(odo, usPoller, USLocalizer.LocalizationType.FALLING_EDGE);
+			ObjectSearch objectSearch = new ObjectSearch(odo,objectPoller,usPoller);
+
+			LCDInfo lcd = new LCDInfo(odo, usPoller,colorPoller,objectPoller , objectSearch);
 			usl.doLocalization();
+
 		}
 		
 		// Right Button
@@ -79,8 +85,13 @@ public class Lab5 {
 			usPoller.start();
 			colorPoller.start();
 			objectPoller.start();
+			
 			USLocalizer usl = new USLocalizer(odo, usPoller, USLocalizer.LocalizationType.RISING_EDGE);
 			usl.doLocalization();
+			ObjectSearch objectSearch = new ObjectSearch(odo,objectPoller,usPoller);
+
+			LCDInfo lcd = new LCDInfo(odo, usPoller,colorPoller,objectPoller , objectSearch);
+
 //
 //			LightLocalizer lsl = new LightLocalizer(odo, colorFilteredSource, colorData);
 //			lsl.doLocalization();
@@ -93,6 +104,8 @@ public class Lab5 {
 			usPoller.start();
 			colorPoller.start();
 			objectPoller.start();
+			ObjectSearch objectSearch = new ObjectSearch(odo,objectPoller,usPoller);
+			LCDInfo lcd = new LCDInfo(odo, usPoller,colorPoller,objectPoller, objectSearch);
 			leftMotor.forward();
 			leftMotor.flt();
 			rightMotor.forward();
@@ -105,8 +118,10 @@ public class Lab5 {
 			usPoller.start();
 			colorPoller.start();
 			objectPoller.start();
-			ObjectSearch objectSearch = new ObjectSearch(odo,objectPoller);
+			ObjectSearch objectSearch = new ObjectSearch(odo,objectPoller,usPoller);
+			LCDInfo lcd = new LCDInfo(odo, usPoller,colorPoller,objectPoller, objectSearch);
 			objectSearch.doBoardSearch();
+
 
 		}
 

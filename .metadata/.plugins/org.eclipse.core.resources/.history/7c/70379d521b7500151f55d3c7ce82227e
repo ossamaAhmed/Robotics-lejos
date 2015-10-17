@@ -1,0 +1,26 @@
+package ev3ObjectSearch;
+import ev3Drive.*;
+import ev3Sensors.*;
+
+
+public class ObjectSearch {
+	private Odometer odo;
+	private FilteredUltrasonicPoller usPoller;
+	private ObjectPoller objectPoller;
+	public ObjectSearch(Odometer odo, ObjectPoller objectPoller ,FilteredUltrasonicPoller usPoller){
+		this.odo = odo;
+		this.objectPoller = objectPoller;
+		this.usPoller= usPoller;
+		Navigation nav = new Navigation(odo);
+		
+	}
+	
+	public void doBoardSearch(){
+		
+	}
+	public double getWallUsValue(){
+		return 55*(1+(0.181818*Math.abs(Math.sin(Math.toRadians(2*odo.getAng()+180)))));
+		
+	}
+	
+}

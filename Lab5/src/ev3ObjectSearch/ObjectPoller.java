@@ -10,7 +10,9 @@ public class ObjectPoller extends Thread {
 	public int isThereObject=0;
 	
 	// Adjustable Variables
-	private static final double distanceThreshold = 0.15; // Require the block to be within this distance
+	private static final double maxDistanceThreshold = 0.065; // Require the block to be within this distance
+	private static final double minDistanceThreshold = 0.050; // Require the block to be within this distance
+
 	private static final double colorThreshold = 0.5; // Require a value greater than this to identify the block as blue
 	private static final double idThreshold = 5; // The required amount of positive readings before confirming an object
 
@@ -38,15 +40,16 @@ public class ObjectPoller extends Thread {
 		int result=0;
 		
 		// Check for object within
-		if (usPoller.getDistance() <= distanceThreshold && colorPoller.getBlue() > colorThreshold && counter < idThreshold*1.5 )
+		if (usPoller.getDistance()>= minDistanceThreshold && usPoller.getDistance()<= maxDistanceThreshold &&(colorPoller.blueObject()||colorPoller.whiteObject()) && counter < idThreshold*1.5 )
 		{ 
 			counter++;
 		}
 		else if (counter >0) counter--;
 		
-		if (counter >= idThreshold) result =1;
-		
-		
+		if (counter >= idThreshold) {
+			if(colorPoller.blueObject()) result=1;
+			else result=2;
+		}
 		
 		
 		return result;

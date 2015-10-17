@@ -1,8 +1,10 @@
 package ev3Sensors;
 
+import lejos.hardware.*;
 import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
 import lejos.robotics.filter.MedianFilter;
+
 
 // This class constantly polls the ultrasonic sensor and filters the data
 // using a clipping filter and a median filter. There is a ~70 ms delay
@@ -13,7 +15,7 @@ public class FilteredColorPoller extends Thread {
 	float[] colorData;
 
 	public FilteredColorPoller(SensorModes colorSensor,int ReadingsToMedian) {
-		SampleProvider colorReading = colorSensor.getMode("Blue");
+		SampleProvider colorReading = colorSensor.getMode("ColorID");
 		// Stack a filter which takes average readings
 		SampleProvider colorMedianSource = new MedianFilter(colorReading, ReadingsToMedian);
 		// The final, filtered data from the us sensor is stored in colorFilteredSource
@@ -32,8 +34,18 @@ public class FilteredColorPoller extends Thread {
 		}
 	}
 
-	public float getBlue() {
+	public float getID() {
 		return this.colorData[0];
+	}
+	public boolean blueObject() {
+		if(this.colorData[0]==6 || this.colorData[0]==7) return true;
+		
+		return false;
+	}
+	public boolean whiteObject() {
+		if(this.colorData[0]==13 || this.colorData[0]==12) return true;
+		
+		return false;
 	}
 
 }

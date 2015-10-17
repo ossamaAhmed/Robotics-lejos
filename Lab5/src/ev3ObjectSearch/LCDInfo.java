@@ -14,17 +14,22 @@ public class LCDInfo implements TimerListener{
 	private TextLCD LCD = LocalEV3.get().getTextLCD();;
 	private FilteredUltrasonicPoller usPoller;
 	private FilteredColorPoller colorPoller;
-	private ObjectPoller objectSearch;
+	private ObjectPoller objectPoller;
+	private ObjectSearch objectSearch;
+
 
 	
 	// arrays for displaying data
 	private double [] pos;
 	
-	public LCDInfo(Odometer odo, FilteredUltrasonicPoller usPoller, FilteredColorPoller colorPoller, ObjectPoller objectPoller ) {
+	public LCDInfo(Odometer odo, FilteredUltrasonicPoller usPoller, FilteredColorPoller colorPoller, ObjectPoller objectPoller, ObjectSearch objectSearch ) {
 		this.odo = odo;
 		this.lcdTimer = new Timer(LCD_REFRESH, this);
 
-		
+		this.usPoller= usPoller;
+		this.colorPoller= colorPoller;
+		this.objectPoller= objectPoller;
+		this.objectSearch= objectSearch;
 		// initialise the arrays for displaying data
 		pos = new double [3];
 		
@@ -44,14 +49,22 @@ public class LCDInfo implements TimerListener{
 //		usSource.fetchSample(usData, 0);
 //		colorSource.fetchSample(colorData, 0);
 		LCD.drawString("US Distance: " + usPoller.getDistance(), 0, 3 );	// print last US reading
-		LCD.drawString("Blue Reading: " + colorPoller.getBlue(), 0, 4 );	// print last color reading
+		LCD.drawString("Blue Reading: " + colorPoller.getID(), 0, 4 );	// print last color reading
 		
-		if (objectSearch.isThereObject == 1) {
-			LCD.drawString("Object Detected", 0, 5 );
-		}
-		
-		else if (objectSearch.isThereObject == 0) {
+		if (objectPoller.isThereObject == 0) {
 			LCD.drawString("No Object Detected", 0, 5 );
 		}
+		
+		if (objectPoller.isThereObject == 1) {
+			LCD.drawString("Object Detected", 0, 5 );
+			LCD.drawString("Block", 0, 6 );
+		}
+		else if (objectPoller.isThereObject == 2) {
+			LCD.drawString("Object Detected", 0, 5 );
+			LCD.drawString("Not Block", 0, 6 );
+		}
+		LCD.drawString("Objects: " + objectSearch.getWallUsValue(), 0, 7 );
+		
+	
 	}
 }

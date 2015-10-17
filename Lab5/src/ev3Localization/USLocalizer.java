@@ -11,7 +11,7 @@ public class USLocalizer {
 
 	// Variables
 	public static float ROTATION_SPEED = 40;
-	private int cornerAngle = 225;
+	private int cornerAngle = 235;
 
 	private Odometer odo;
 	private LocalizationType locType;
@@ -46,7 +46,7 @@ public class USLocalizer {
 			}
 			angleB = odo.getAng(); // Second wall detected, this is angle B.
 			Sound.beep();
-			odo.setAng(cornerAngle-180 + (getAngleDistance(angleA, angleB) / 2)); // Fix heading
+			odo.setAng(cornerAngle- (getAngleDistance(angleA, angleB) / 2)); // Fix heading
 
 		} else {
 			nav.setSpeeds(ROTATION_SPEED, -1 * ROTATION_SPEED);
