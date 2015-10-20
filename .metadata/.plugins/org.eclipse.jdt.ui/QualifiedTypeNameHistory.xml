@@ -3,5 +3,6 @@
 <fullyQualifiedTypeName name="Odometry.Odometer"/>
 <fullyQualifiedTypeName name="java.lang.Math"/>
 <fullyQualifiedTypeName name="java.lang.Thread"/>
+<fullyQualifiedTypeName name="lejos.hardware.sensor.SensorModes"/>
 <fullyQualifiedTypeName name="lejos.hardware.Sound"/>
 </qualifiedTypeNameHistroy>

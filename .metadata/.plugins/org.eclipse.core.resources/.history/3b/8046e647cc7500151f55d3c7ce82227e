@@ -8,7 +8,6 @@ public class ObjectSearch {
 	private Odometer odo;
 	private FilteredUltrasonicPoller usPoller;
 	private ObjectPoller objectPoller;
-	public static float ROTATION_SPEED = 40;
 	private Navigation nav;
 	private int counter;
 	public ObjectSearch(Odometer odo, ObjectPoller objectPoller ,FilteredUltrasonicPoller usPoller){
@@ -22,40 +21,16 @@ public class ObjectSearch {
 	public void doBoardSearch(){
 		this.nav.travelTo(30, 30);
 		this.nav.turnTo(2, false);
-		nav.setSpeeds(-1*ROTATION_SPEED, ROTATION_SPEED);
 		while(!objectSeen()){
-			
+			this.nav.turnTo(odo.getAng()+1, false);
 		}
-		nav.setSpeeds(0, 0);
 		counter++;
 		Double rightAngle=odo.getAng();
-		nav.setSpeeds(-1*ROTATION_SPEED, ROTATION_SPEED);
-		while(objectSeen()){
+		while(usPoller.getDistance()< (getWallUsValue()-0.10)){
+			this.nav.turnTo(odo.getAng()+1, false);
 		}
-		nav.setSpeeds(0, 0);
 		Double leftAngle=odo.getAng();
-		this.nav.turnTo(odo.getAng()-5-(0.5*this.getAngleDistance(leftAngle, rightAngle)), false);
-		this.nav.setSpeeds(0, 0);
-		while(usPoller.getDistance()>0.065){
-			this.nav.setSpeeds(50, 50);
-		}
-		this.nav.setSpeeds(0, 0);
-		//go find another block
-		this.nav.travelTo(30, 30);
-		this.nav.turnTo(leftAngle+20, false);
-		nav.setSpeeds(-1*ROTATION_SPEED, ROTATION_SPEED);
-		while(!objectSeen()){
-			
-		}
-		nav.setSpeeds(0, 0);
-		counter++;
-		rightAngle=odo.getAng();
-		nav.setSpeeds(-1*ROTATION_SPEED, ROTATION_SPEED);
-		while(objectSeen()){
-		}
-		nav.setSpeeds(0, 0);
-		leftAngle=odo.getAng();
-		this.nav.turnTo(odo.getAng()-5-(0.5*this.getAngleDistance(leftAngle, rightAngle)), false);
+		this.nav.turnTo(odo.getAng()-0.5*this.getAngleDistance(leftAngle, rightAngle), false);
 		this.nav.setSpeeds(0, 0);
 		while(usPoller.getDistance()>0.065){
 			this.nav.setSpeeds(50, 50);

@@ -34,28 +34,7 @@ public class ObjectSearch {
 		}
 		nav.setSpeeds(0, 0);
 		Double leftAngle=odo.getAng();
-		this.nav.turnTo(odo.getAng()-5-(0.5*this.getAngleDistance(leftAngle, rightAngle)), false);
-		this.nav.setSpeeds(0, 0);
-		while(usPoller.getDistance()>0.065){
-			this.nav.setSpeeds(50, 50);
-		}
-		this.nav.setSpeeds(0, 0);
-		//go find another block
-		this.nav.travelTo(30, 30);
-		this.nav.turnTo(leftAngle+20, false);
-		nav.setSpeeds(-1*ROTATION_SPEED, ROTATION_SPEED);
-		while(!objectSeen()){
-			
-		}
-		nav.setSpeeds(0, 0);
-		counter++;
-		rightAngle=odo.getAng();
-		nav.setSpeeds(-1*ROTATION_SPEED, ROTATION_SPEED);
-		while(objectSeen()){
-		}
-		nav.setSpeeds(0, 0);
-		leftAngle=odo.getAng();
-		this.nav.turnTo(odo.getAng()-5-(0.5*this.getAngleDistance(leftAngle, rightAngle)), false);
+		this.nav.turnTo(odo.getAng()-0.5*this.getAngleDistance(leftAngle, rightAngle), false);
 		this.nav.setSpeeds(0, 0);
 		while(usPoller.getDistance()>0.065){
 			this.nav.setSpeeds(50, 50);

@@ -63,7 +63,7 @@ public class LCDInfo implements TimerListener{
 			LCD.drawString("Object Detected", 0, 5 );
 			LCD.drawString("Not Block", 0, 6 );
 		}
-		LCD.drawString("Objects: " + objectSearch.getCounter(), 0, 7 );
+		LCD.drawString("Objects: " + objectSearch.getWallUsValue(), 0, 7 );
 		
 	
 	}
