@@ -1,4 +1,5 @@
 package ev3Localization;
+
 import ev3Drive.Navigation;
 import ev3Drive.Odometer;
 import ev3Sensors.FilteredUltrasonicPoller;
@@ -12,6 +13,8 @@ public class USLocalizer {
 	// Variables
 	public static float ROTATION_SPEED = 40;
 	private int cornerAngle = 235;
+	private static final double angleThreshold = 125; // Angle A and B must differ by at least this much
+	private static final double wallAngleThreshold = 25; // Used to avoid the localization latching the same angle twice
 
 	private Odometer odo;
 	private LocalizationType locType;
@@ -29,41 +32,22 @@ public class USLocalizer {
 	}
 
 	public void doLocalization() {
-		double angleA, angleB;
+		double[] angles = new double[3]; // Angle A = 0, Angle B = 1, New Heading = 2
 
 		if (locType == LocalizationType.FALLING_EDGE) {
-			nav.setSpeeds(ROTATION_SPEED, -1 * ROTATION_SPEED);
-			while (facingWall() != 0) { // read: Rotate clockwise until facing wall == false
-			}
-			while (facingWall() != 1) { // Rotate clockwise until facing wall == true
-			}
-			angleA = odo.getAng(); // First wall detected, this is angle A. Switch directions
-			Sound.beep();
-			nav.setSpeeds(-1 * ROTATION_SPEED, ROTATION_SPEED);
-			while (facingWall() != 0 || getAngleDistance(angleA,odo.getAng()) < 30) { // Rotate c-clockwise until facing wall == false
-			}
-			while (facingWall() != 1) { // Rotate c-clockwise until facing wall == true
-			}
-			angleB = odo.getAng(); // Second wall detected, this is angle B.
-			Sound.beep();
-			odo.setAng(cornerAngle- (getAngleDistance(angleA, angleB) / 2)); // Fix heading
-
+			// newHeading = doFallingEdge();
 		} else {
-			nav.setSpeeds(ROTATION_SPEED, -1 * ROTATION_SPEED);
-			while (facingWall() != 1) { // Rotate clockwise until facing wall == true
+			angles = doRisingEdge();
+			if (getAngleDistance(angles[0], angles[1]) < angleThreshold) {
+				// The robot is latching angles of a block -> turn around 180 to face wall
+				// afterwards, redo the rising edge
+				Sound.buzz();
+				nav.turnTo(odo.getAng()+180, false);
+				angles = doRisingEdge();
+
 			}
-			while (facingWall() != 0) { // Rotate clockwise until facing wall == false
-			}
-			angleA = odo.getAng(); // First wall detected, this is angle A. Switch directions
-			Sound.beep();
-			nav.setSpeeds(-1 * ROTATION_SPEED, ROTATION_SPEED);
-			while (facingWall() != 1 || getAngleDistance(angleA,odo.getAng()) < 30 ) { // Rotate c-clockwise until facing wall == true
-			}
-			while (facingWall() != 0) { // Rotate c-clockwise until facing wall == false
-			}
-			angleB = odo.getAng(); // Second wall detected, this is angle B.
-			Sound.beep();
-			odo.setAng(cornerAngle + (getAngleDistance(angleA, angleB) / 2)); // Fix Heading
+			odo.setAng(angles[2]);
+
 		}
 		nav.turnTo(0, true);
 		nav.setSpeeds(0, 0);
@@ -78,6 +62,50 @@ public class USLocalizer {
 		else if (d > 0.50)
 			facingWall = 0;
 		return facingWall;
+	}
+
+	private double[] doRisingEdge() {
+		double[] angles = new double[3];
+		nav.setSpeeds(ROTATION_SPEED, -1 * ROTATION_SPEED);
+		while (facingWall() != 1) { // Rotate clockwise until facing wall == true
+		}
+		while (facingWall() != 0) { // Rotate clockwise until facing wall == false
+		}
+		angles[0] = odo.getAng(); // First wall detected, this is angle A. Switch directions
+		Sound.beep();
+		nav.setSpeeds(-1 * ROTATION_SPEED, ROTATION_SPEED);
+		while (facingWall() != 1 || getAngleDistance(angles[0], odo.getAng()) < wallAngleThreshold) { // Rotate c-clockwise until facing wall == true
+		}
+		while (facingWall() != 0) { // Rotate c-clockwise until facing wall == false
+		}
+		angles[1] = odo.getAng(); // Second wall detected, this is angle B.
+		Sound.beep();
+		angles[2] = (cornerAngle + (getAngleDistance(angles[0], angles[1]) / 2)); // Fix Heading
+
+		return angles;
+	}
+
+	private double[] doFallingEdge() {
+		double angleA, angleB;
+		double[] angles = new double[3];
+		nav.setSpeeds(ROTATION_SPEED, -1 * ROTATION_SPEED);
+		while (facingWall() != 0) { // read: Rotate clockwise until facing wall == false
+		}
+		while (facingWall() != 1) { // Rotate clockwise until facing wall == true
+		}
+		angleA = odo.getAng(); // First wall detected, this is angle A. Switch directions
+		Sound.beep();
+		nav.setSpeeds(-1 * ROTATION_SPEED, ROTATION_SPEED);
+		while (facingWall() != 0 || getAngleDistance(angleA, odo.getAng()) < wallAngleThreshold) { // Rotate c-clockwise until facing wall == false
+		}
+		while (facingWall() != 1) { // Rotate c-clockwise until facing wall == true
+		}
+		angleB = odo.getAng(); // Second wall detected, this is angle B.
+		Sound.beep();
+		odo.setAng(cornerAngle - (getAngleDistance(angleA, angleB) / 2)); // Fix heading
+		nav.setSpeeds(0, 0);
+		return angles;
+
 	}
 
 	public double getAngleDistance(double a, double b) {

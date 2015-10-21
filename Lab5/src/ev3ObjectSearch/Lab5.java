@@ -110,6 +110,11 @@ public class Lab5 {
 			leftMotor.flt();
 			rightMotor.forward();
 			rightMotor.flt();
+			ObjectSearchArm arm = new ObjectSearchArm();
+			arm.raiseArm();
+			while (buttonChoice != Button.ID_ENTER){
+			}
+			arm.dropArm();
 		}
 
 		// Down Button
